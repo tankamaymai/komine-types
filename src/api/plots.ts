@@ -735,3 +735,62 @@ export interface CreatePlotResponse {
   createdAt: string;
   updatedAt: string;
 }
+
+/**
+ * 一括操作で失敗したアイテムの詳細
+ * row: リクエスト内でのインデックス（0 始まり）
+ * plotNumber: 該当行の区画番号（分かる場合のみ）
+ * error: 失敗理由
+ */
+export interface BulkFailureItem {
+  row: number;
+  plotNumber?: string | null;
+  error: {
+    message: string;
+    details?: Array<{ field?: string; message: string }>;
+  };
+}
+
+/**
+ * 一括登録の成功アイテム
+ */
+export interface BulkCreateResultItem {
+  row: number;
+  id: string;
+  physicalPlotId: string;
+  plotNumber: string | null;
+}
+
+/**
+ * 一括登録レスポンス（POST /api/v1/plots/bulk）
+ *
+ * totalRequested: リクエストされた総件数
+ * succeeded: 成功件数
+ * failed: 失敗した行の詳細
+ * results: 成功した行の詳細
+ */
+export interface BulkCreatePlotsResponse {
+  totalRequested: number;
+  succeeded: number;
+  failed: BulkFailureItem[];
+  results: BulkCreateResultItem[];
+}
+
+/**
+ * 一括編集の成功アイテム
+ */
+export interface BulkUpdateResultItem {
+  row: number;
+  id: string;
+  plotNumber: string;
+}
+
+/**
+ * 一括編集レスポンス（PUT /api/v1/plots/bulk）
+ */
+export interface BulkUpdatePlotsResponse {
+  totalRequested: number;
+  succeeded: number;
+  failed: BulkFailureItem[];
+  results: BulkUpdateResultItem[];
+}
