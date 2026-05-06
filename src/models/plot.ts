@@ -20,6 +20,7 @@ export interface PhysicalPlot {
   areaName: string;
   areaSqm: number;
   status: PhysicalPlotStatus;
+  mapId: number | null;  // マップ位置ID（レガシー map_id）
   notes: string | null;
   createdAt: string;
   updatedAt: string;
@@ -36,11 +37,12 @@ export interface ContractPlot {
   locationDescription: string | null;
 
   // Sale contract info (integrated)
-  contractDate: string;  // ISO date string
-  price: number;
+  contractDate: string | null;  // ISO date string（レガシー 45%空のため nullable）
+  price: number | null;          // レガシー 53%空のため nullable
   contractStatus: ContractStatus;
   paymentStatus: PaymentStatus;
   reservationDate: string | null;
+  requestDate: string | null;    // 申込日（レガシー request_date）
   acceptanceNumber: string | null;
   acceptanceDate: string | null;  // 受付日
   staffInCharge: string | null;  // 担当者
@@ -48,6 +50,14 @@ export interface ContractPlot {
   permitNumber: string | null;
   startDate: string | null;
   notes: string | null;
+
+  // レガシー由来の区分コード（sykbnn 未紐付け、整理せずそのまま保持）
+  graveKind: number | null;   // 区画種別1（レガシー grave_kind）
+  graveKubun: number | null;  // 区画種別2（レガシー grave_kubun）
+  graveType: number | null;   // 区画種別3（レガシー grave_type）
+
+  // 移行用（後で削除可能）
+  legacyGraveCd: number | null;
 
   createdAt: string;
   updatedAt: string;
@@ -134,6 +144,9 @@ export interface GravestoneInfo {
   gravestoneCost: number | null;  // 墓石代（円単位）
   establishmentDeadline: string | null;
   establishmentDate: string | null;
+  gravestoneInscription: string | null;  // 墓誌（レガシー boshi）
+  directionId: number | null;            // 方位ID（レガシー houi_id）
+  positionId: number | null;             // 位置ID（レガシー ichi_id）
 }
 
 /**
@@ -210,6 +223,7 @@ export interface PhysicalPlotInput {
   areaName: string;
   areaSqm?: number;
   status?: PhysicalPlotStatus;
+  mapId?: number | null;
   notes?: string | null;
 }
 
@@ -217,11 +231,12 @@ export interface ContractPlotInput {
   physicalPlotId?: string;
   contractAreaSqm: number;
   locationDescription?: string | null;
-  contractDate: string;
-  price: number;
+  contractDate?: string | null;
+  price?: number | null;
   contractStatus?: ContractStatus;
   paymentStatus?: PaymentStatus;
   reservationDate?: string | null;
+  requestDate?: string | null;
   acceptanceNumber?: string | null;
   acceptanceDate?: string | null;
   staffInCharge?: string | null;
@@ -229,6 +244,10 @@ export interface ContractPlotInput {
   permitNumber?: string | null;
   startDate?: string | null;
   notes?: string | null;
+  graveKind?: number | null;
+  graveKubun?: number | null;
+  graveType?: number | null;
+  legacyGraveCd?: number | null;
 }
 
 export interface UsageFeeInput {
@@ -264,6 +283,9 @@ export interface GravestoneInfoInput {
   gravestoneCost?: number | null;
   establishmentDeadline?: string | null;
   establishmentDate?: string | null;
+  gravestoneInscription?: string | null;
+  directionId?: number | null;
+  positionId?: number | null;
 }
 
 export interface CollectiveBurialInput {

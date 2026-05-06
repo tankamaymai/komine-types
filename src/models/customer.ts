@@ -2,7 +2,7 @@
  * Customer-related type definitions
  */
 
-import { Gender, AddressType, DmSetting, BillingType, AccountType } from '../enums';
+import { Gender, AddressType, DmSetting } from '../enums';
 
 /**
  * Customer - 顧客マスタ
@@ -22,12 +22,13 @@ export interface Customer {
   faxNumber: string | null;
   email: string | null;
   notes: string | null;
+  staffId: number | null;       // 担当スタッフFK（レガシー tancd → matant）
+  legacyDankaCd: number | null; // 移行用（レガシー t_danka.danka_cd）
   createdAt: string;  // ISO datetime string
   updatedAt: string;  // ISO datetime string
 
   // Optional related data (included in detail responses)
   workInfo?: WorkInfo | null;
-  billingInfo?: BillingInfo | null;
 }
 
 /**
@@ -45,21 +46,6 @@ export interface WorkInfo {
   dmSetting: DmSetting;
   addressType: AddressType;
   notes: string | null;
-}
-
-/**
- * BillingInfo - 請求情報
- * Matches: Prisma BillingInfo model
- */
-export interface BillingInfo {
-  id: string;
-  customerId: string;
-  billingType: BillingType;
-  bankName: string;
-  branchName: string;
-  accountType: AccountType;
-  accountNumber: string;
-  accountHolder: string;
 }
 
 /**
@@ -109,6 +95,10 @@ export interface BuriedPerson {
   posthumousName: string | null;  // 戒名
   reportDate: string | null;  // 届出日
   religion: string | null;  // 宗派
+  deathPlace: string | null;  // 死亡場所（レガシー siboubasyo）
+  causeOfDeath: string | null;  // 死因（レガシー siin、センシティブ情報）
+  chiefMournerName: string | null;  // 喪主氏名（レガシー moshu_sei + moshu_mei）
+  chiefMournerRelationship: string | null;  // 喪主続柄（レガシー moshu_zokugara）
   notes: string | null;
 }
 
@@ -128,6 +118,8 @@ export interface CustomerInput {
   faxNumber?: string | null;
   email?: string | null;
   notes?: string | null;
+  staffId?: number | null;
+  legacyDankaCd?: number | null;
 }
 
 export interface WorkInfoInput {
@@ -139,15 +131,6 @@ export interface WorkInfoInput {
   dmSetting: DmSetting;
   addressType: AddressType;
   notes?: string | null;
-}
-
-export interface BillingInfoInput {
-  billingType: BillingType;
-  bankName: string;
-  branchName: string;
-  accountType: AccountType;
-  accountNumber: string;
-  accountHolder: string;
 }
 
 export interface FamilyContactInput {
@@ -184,5 +167,9 @@ export interface BuriedPersonInput {
   posthumousName?: string | null;
   reportDate?: string | null;
   religion?: string | null;
+  deathPlace?: string | null;
+  causeOfDeath?: string | null;
+  chiefMournerName?: string | null;
+  chiefMournerRelationship?: string | null;
   notes?: string | null;
 }

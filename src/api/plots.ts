@@ -11,8 +11,6 @@ import {
   Gender,
   AddressType,
   DmSetting,
-  BillingType,
-  AccountType,
 } from '../enums';
 
 /**
@@ -31,8 +29,8 @@ export interface PlotListItem {
   physicalPlotStatus: PhysicalPlotStatus;
 
   // Sale contract info
-  contractDate: string;
-  price: number;
+  contractDate: string | null;  // レガシー実態に合わせて nullable
+  price: number | null;          // レガシー実態に合わせて nullable
   paymentStatus: PaymentStatus;
 
   // Primary customer (backward compatibility)
@@ -108,15 +106,17 @@ export interface PlotDetailResponse {
     areaName: string;
     areaSqm: number;
     status: PhysicalPlotStatus;
+    mapId: number | null;
     notes: string | null;
   };
 
   // Sale contract info
-  contractDate: string;
-  price: number;
+  contractDate: string | null;
+  price: number | null;
   contractStatus: ContractStatus;
   paymentStatus: PaymentStatus;
   reservationDate: string | null;
+  requestDate: string | null;       // 申込日（レガシー request_date）
   acceptanceNumber: string | null;
   acceptanceDate: string | null;
   staffInCharge: string | null;
@@ -126,6 +126,12 @@ export interface PlotDetailResponse {
   uncollectedAmount: number;
   contractNotes: string | null;
   agentName: string | null;
+
+  // レガシー由来の区分コード
+  graveKind: number | null;
+  graveKubun: number | null;
+  graveType: number | null;
+  legacyGraveCd: number | null;
 
   // Usage fee
   usageFee: {
@@ -167,6 +173,10 @@ export interface PlotDetailResponse {
     posthumousName: string | null;
     reportDate: string | null;
     religion: string | null;
+    deathPlace: string | null;
+    causeOfDeath: string | null;
+    chiefMournerName: string | null;
+    chiefMournerRelationship: string | null;
     notes: string | null;
   }>;
 
@@ -203,6 +213,9 @@ export interface PlotDetailResponse {
     gravestoneCost: number | null;
     establishmentDeadline: string | null;
     establishmentDate: string | null;
+    gravestoneInscription: string | null;
+    directionId: number | null;
+    positionId: number | null;
   } | null;
 
   // Construction infos
@@ -273,6 +286,8 @@ export interface PlotDetailResponse {
       addressLine2: string | null;
       registeredAddress: string | null;
       notes: string | null;
+      staffId: number | null;
+      legacyDankaCd: number | null;
       workInfo: {
         companyName: string | null;
         companyNameKana: string | null;
@@ -282,14 +297,6 @@ export interface PlotDetailResponse {
         dmSetting: DmSetting | null;
         addressType: AddressType | null;
         notes: string | null;
-      } | null;
-      billingInfo: {
-        billingType: BillingType | null;
-        bankName: string | null;
-        branchName: string | null;
-        accountType: AccountType | null;
-        accountNumber: string | null;
-        accountHolder: string | null;
       } | null;
     };
   }>;
@@ -314,6 +321,7 @@ export interface CreatePlotRequest {
     plotNumber: string;
     areaName: string;
     areaSqm?: number;
+    mapId?: number | null;
     notes?: string | null;
   };
 
@@ -323,11 +331,12 @@ export interface CreatePlotRequest {
   };
 
   saleContract: {
-    contractDate: string;
-    price: number;
+    contractDate?: string | null;
+    price?: number | null;
     paymentStatus?: PaymentStatus;
     customerRole?: string;
     reservationDate?: string | null;
+    requestDate?: string | null;
     acceptanceNumber?: string | null;
     acceptanceDate?: string | null;
     staffInCharge?: string | null;
@@ -337,6 +346,10 @@ export interface CreatePlotRequest {
     uncollectedAmount?: number | null;
     agentName?: string | null;
     notes?: string | null;
+    graveKind?: number | null;
+    graveKubun?: number | null;
+    graveType?: number | null;
+    legacyGraveCd?: number | null;
     roles?: Array<{
       customerId?: string;
       role: ContractRole;
@@ -359,6 +372,8 @@ export interface CreatePlotRequest {
     faxNumber?: string | null;
     email?: string | null;
     notes?: string | null;
+    staffId?: number | null;
+    legacyDankaCd?: number | null;
     role?: ContractRole;
   };
 
@@ -371,15 +386,6 @@ export interface CreatePlotRequest {
     dmSetting?: DmSetting;
     addressType?: AddressType;
     notes?: string | null;
-  };
-
-  billingInfo?: {
-    billingType: BillingType;
-    bankName: string;
-    branchName: string;
-    accountType: AccountType;
-    accountNumber: string;
-    accountHolder: string;
   };
 
   usageFee?: {
@@ -415,6 +421,9 @@ export interface CreatePlotRequest {
     gravestoneCost?: number | null;
     establishmentDeadline?: string | null;
     establishmentDate?: string | null;
+    gravestoneInscription?: string | null;
+    directionId?: number | null;
+    positionId?: number | null;
   };
 
   familyContacts?: Array<{
@@ -451,6 +460,10 @@ export interface CreatePlotRequest {
     posthumousName?: string | null;
     reportDate?: string | null;
     religion?: string | null;
+    deathPlace?: string | null;
+    causeOfDeath?: string | null;
+    chiefMournerName?: string | null;
+    chiefMournerRelationship?: string | null;
     notes?: string | null;
   }>;
 
@@ -504,6 +517,7 @@ export interface UpdatePlotRequest {
     areaName?: string;
     areaSqm?: number;
     status?: string;
+    mapId?: number | null;
     notes?: string | null;
   };
 
@@ -513,11 +527,13 @@ export interface UpdatePlotRequest {
   };
 
   saleContract?: {
-    contractDate?: string;
-    price?: number;
+    contractDate?: string | null;
+    price?: number | null;
+    contractStatus?: ContractStatus;
     paymentStatus?: PaymentStatus;
     customerRole?: string;
     reservationDate?: string | null;
+    requestDate?: string | null;
     acceptanceNumber?: string | null;
     acceptanceDate?: string | null;
     staffInCharge?: string | null;
@@ -527,6 +543,10 @@ export interface UpdatePlotRequest {
     uncollectedAmount?: number | null;
     agentName?: string | null;
     notes?: string | null;
+    graveKind?: number | null;
+    graveKubun?: number | null;
+    graveType?: number | null;
+    legacyGraveCd?: number | null;
     roles?: Array<{
       customerId?: string;
       role: ContractRole;
@@ -549,6 +569,8 @@ export interface UpdatePlotRequest {
     faxNumber?: string | null;
     email?: string | null;
     notes?: string | null;
+    staffId?: number | null;
+    legacyDankaCd?: number | null;
   };
 
   workInfo?: {
@@ -560,15 +582,6 @@ export interface UpdatePlotRequest {
     dmSetting?: DmSetting;
     addressType?: AddressType;
     notes?: string | null;
-  } | null;
-
-  billingInfo?: {
-    billingType?: BillingType;
-    bankName?: string;
-    branchName?: string;
-    accountType?: AccountType;
-    accountNumber?: string;
-    accountHolder?: string;
   } | null;
 
   usageFee?: {
@@ -604,6 +617,9 @@ export interface UpdatePlotRequest {
     gravestoneCost?: number | null;
     establishmentDeadline?: string | null;
     establishmentDate?: string | null;
+    gravestoneInscription?: string | null;
+    directionId?: number | null;
+    positionId?: number | null;
   } | null;
 
   familyContacts?: Array<{
@@ -642,6 +658,10 @@ export interface UpdatePlotRequest {
     posthumousName?: string | null;
     reportDate?: string | null;
     religion?: string | null;
+    deathPlace?: string | null;
+    causeOfDeath?: string | null;
+    chiefMournerName?: string | null;
+    chiefMournerRelationship?: string | null;
     notes?: string | null;
   }>;
 
@@ -694,8 +714,8 @@ export interface CreatePlotResponse {
   id: string;
   contractAreaSqm: number;
   locationDescription: string | null;
-  contractDate: string;
-  price: number;
+  contractDate: string | null;
+  price: number | null;
   paymentStatus: PaymentStatus;
   reservationDate: string | null;
   acceptanceNumber: string | null;

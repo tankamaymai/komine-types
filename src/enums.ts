@@ -19,18 +19,13 @@ export enum PaymentStatus {
   Paid = 'paid',             // 全額入金済み
   Overdue = 'overdue',       // 延滞
   Refunded = 'refunded',     // 返金済み
-  Cancelled = 'cancelled',   // キャンセル
 }
 
-// 契約ステータス
+// 契約ステータス（レガシー m_bochi.status NULL/1/0 に対応）
 export enum ContractStatus {
-  Draft = 'draft',           // 下書き・仮予約
-  Reserved = 'reserved',     // 予約済み（仮契約）
-  Active = 'active',         // 有効（本契約）
-  Suspended = 'suspended',   // 一時停止（滞納等）
-  Terminated = 'terminated', // 終了（正常終了）
-  Cancelled = 'cancelled',   // 解約（中途解約）
-  Transferred = 'transferred', // 継承済み（名義変更完了）
+  Vacant = 'vacant',         // 未契約（旧 NULL）
+  Active = 'active',         // 契約中（旧 status=1）
+  Terminated = 'terminated', // 解約済（旧 status=0）
 }
 
 // 性別
@@ -60,25 +55,32 @@ export enum DmSetting {
   Limited = 'limited', // 制限付き
 }
 
-// 請求先タイプ
-export enum BillingType {
-  Individual = 'individual',     // 個人
-  Corporate = 'corporate',       // 法人
-  BankTransfer = 'bank_transfer', // 銀行振込
-}
-
-// 口座種別
-export enum AccountType {
-  Ordinary = 'ordinary', // 普通預金
-  Current = 'current',   // 当座預金
-  Savings = 'savings',   // 貯蓄預金
-}
-
 // 請求ステータス（合祀用）
 export enum BillingStatus {
   Pending = 'pending', // 請求前
   Billed = 'billed',   // 請求済
   Paid = 'paid',       // 支払済
+}
+
+// 請求の料金区分（Billing.category）
+export enum BillingCategory {
+  UsageFee = 'usage_fee',           // 使用料
+  ManagementFee = 'management_fee', // 管理料
+  CollectiveFee = 'collective_fee', // 合祀料金
+  ConstructionFee = 'construction_fee', // 工事料金
+  GravestoneFee = 'gravestone_fee', // 墓石代
+  Other = 'other',                  // その他
+}
+
+// 請求レコードのステータス（Billing.status）
+export enum BillingRecordStatus {
+  Pending = 'pending',         // 請求前
+  Billed = 'billed',           // 請求済
+  PartialPaid = 'partial_paid', // 一部入金
+  Paid = 'paid',               // 全額入金済
+  Overdue = 'overdue',         // 延滞
+  Terminated = 'terminated',   // 解約済（使用料/管理料が止まった）
+  WrittenOff = 'written_off',  // 貸倒処理
 }
 
 // 履歴アクションタイプ

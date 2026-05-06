@@ -11,10 +11,9 @@ import {
   Gender,
   ContractRole,
   PaymentStatus,
+  ContractStatus,
   DmSetting,
   AddressType,
-  BillingType,
-  AccountType,
 } from '../enums';
 import {
   optionalDateSchema,
@@ -44,6 +43,7 @@ export const physicalPlotSchema = z.object({
     .number()
     .positive('面積は正の数値で入力してください')
     .default(3.6),
+  mapId: z.coerce.number().int().nonnegative().optional().nullable(),
   notes: z.string().max(1000, '備考は1000文字以内で入力してください').optional().nullable(),
 });
 
@@ -63,19 +63,18 @@ export const contractPlotSchema = z.object({
 // ===== 販売契約スキーマ =====
 
 export const saleContractSchema = z.object({
-  contractDate: z
-    .string()
-    .min(1, '契約日は必須です')
-    .regex(
-      /^\d{4}-\d{2}-\d{2}$/,
-      '契約日はYYYY-MM-DD形式で入力してください',
-    ),
-  price: z.coerce.number().nonnegative('価格は0以上で入力してください'),
+  contractDate: optionalDateSchema.nullable(),
+  price: z.coerce.number().nonnegative('価格は0以上で入力してください').optional().nullable(),
+  contractStatus: z
+    .nativeEnum(ContractStatus)
+    .optional()
+    .default(ContractStatus.Vacant),
   paymentStatus: z
     .nativeEnum(PaymentStatus)
     .optional()
     .default(PaymentStatus.Unpaid),
   reservationDate: optionalDateSchema,
+  requestDate: optionalDateSchema,
   acceptanceNumber: z.string().optional(),
   acceptanceDate: optionalDateSchema,
   staffInCharge: z
@@ -92,6 +91,10 @@ export const saleContractSchema = z.object({
   permitNumber: z.string().optional(),
   startDate: optionalDateSchema,
   notes: z.string().max(1000, '備考は1000文字以内で入力してください').optional().nullable(),
+  graveKind: z.coerce.number().int().optional().nullable(),
+  graveKubun: z.coerce.number().int().optional().nullable(),
+  graveType: z.coerce.number().int().optional().nullable(),
+  legacyGraveCd: z.coerce.number().int().optional().nullable(),
 });
 
 // ===== 顧客スキーマ =====
@@ -126,6 +129,8 @@ export const customerSchema = z.object({
   faxNumber: phoneSchema.nullable(),
   email: optionalEmailSchema.nullable(),
   notes: z.string().max(1000, '備考は1000文字以内で入力してください').optional().nullable(),
+  staffId: z.coerce.number().int().optional().nullable(),
+  legacyDankaCd: z.coerce.number().int().optional().nullable(),
   role: z
     .nativeEnum(ContractRole)
     .optional()
@@ -161,29 +166,6 @@ export const workInfoSchema = z.object({
     .optional()
     .default(AddressType.Home),
   notes: z.string().max(1000, '備考は1000文字以内で入力してください').optional().nullable(),
-});
-
-// ===== 請求情報スキーマ =====
-
-export const billingInfoSchema = z.object({
-  billingType: z.nativeEnum(BillingType),
-  bankName: z
-    .string()
-    .min(1, '銀行名は必須です')
-    .max(100, '銀行名は100文字以内で入力してください'),
-  branchName: z
-    .string()
-    .min(1, '支店名は必須です')
-    .max(100, '支店名は100文字以内で入力してください'),
-  accountType: z.nativeEnum(AccountType),
-  accountNumber: z
-    .string()
-    .min(1, '口座番号は必須です')
-    .max(20, '口座番号は20文字以内で入力してください'),
-  accountHolder: z
-    .string()
-    .min(1, '口座名義は必須です')
-    .max(100, '口座名義は100文字以内で入力してください'),
 });
 
 // ===== 使用料スキーマ =====
@@ -225,6 +207,9 @@ export const gravestoneInfoSchema = z.object({
   gravestoneCost: optionalNonnegativeNumber.optional(),
   establishmentDeadline: optionalDateSchema.nullable(),
   establishmentDate: optionalDateSchema.nullable(),
+  gravestoneInscription: z.string().max(200).optional().nullable(),
+  directionId: z.coerce.number().int().optional().nullable(),
+  positionId: z.coerce.number().int().optional().nullable(),
 });
 
 // ===== 家族連絡先スキーマ =====
@@ -282,6 +267,10 @@ export const buriedPersonSchema = z.object({
   posthumousName: z.string().max(200).optional().nullable(),
   reportDate: optionalDateSchema.nullable(),
   religion: z.string().max(50).optional().nullable(),
+  deathPlace: z.string().max(200).optional().nullable(),
+  causeOfDeath: z.string().max(200).optional().nullable(),
+  chiefMournerName: z.string().max(100).optional().nullable(),
+  chiefMournerRelationship: z.string().max(50).optional().nullable(),
   notes: z.string().max(500).optional().nullable(),
 });
 
@@ -343,7 +332,6 @@ export const plotFormSchema = z.object({
   saleContract: saleContractSchema,
   customer: customerSchema,
   workInfo: workInfoSchema.optional().nullable(),
-  billingInfo: billingInfoSchema.optional().nullable(),
   usageFee: usageFeeSchema.optional().nullable(),
   managementFee: managementFeeSchema.optional().nullable(),
   gravestoneInfo: gravestoneInfoSchema.optional().nullable(),
@@ -362,6 +350,7 @@ export const plotUpdateFormSchema = z.object({
       areaName: z.string().max(100).optional(),
       areaSqm: z.coerce.number().positive().optional(),
       status: z.string().max(20).optional(),
+      mapId: z.coerce.number().int().nonnegative().optional().nullable(),
       notes: z.string().max(1000).optional().nullable(),
     })
     .optional(),
@@ -369,7 +358,6 @@ export const plotUpdateFormSchema = z.object({
   saleContract: saleContractSchema.partial().optional(),
   customer: customerSchema.partial().optional(),
   workInfo: workInfoSchema.optional().nullable(),
-  billingInfo: billingInfoSchema.optional().nullable(),
   usageFee: usageFeeSchema.optional().nullable(),
   managementFee: managementFeeSchema.optional().nullable(),
   gravestoneInfo: gravestoneInfoSchema.optional().nullable(),
@@ -386,7 +374,6 @@ export type ContractPlotFormData = z.infer<typeof contractPlotSchema>;
 export type SaleContractFormData = z.infer<typeof saleContractSchema>;
 export type CustomerSectionFormData = z.infer<typeof customerSchema>;
 export type WorkInfoFormData = z.infer<typeof workInfoSchema>;
-export type BillingInfoFormData = z.infer<typeof billingInfoSchema>;
 export type UsageFeeFormData = z.infer<typeof usageFeeSchema>;
 export type ManagementFeeFormData = z.infer<typeof managementFeeSchema>;
 export type GravestoneInfoFormData = z.infer<typeof gravestoneInfoSchema>;
