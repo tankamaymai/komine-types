@@ -188,8 +188,8 @@ export interface PlotDetailResponse {
     birthDate: string | null;
     relationship: string;
     postalCode: string | null;
-    address: string;
-    phoneNumber: string;
+    address: string | null;
+    phoneNumber: string | null;
     phoneNumber2: string | null;
     faxNumber: string | null;
     email: string | null;
@@ -433,8 +433,8 @@ export interface CreatePlotRequest {
     birthDate?: string | null;
     relationship: string;
     postalCode?: string | null;
-    address: string;
-    phoneNumber: string;
+    address?: string | null;
+    phoneNumber?: string | null;
     phoneNumber2?: string | null;
     faxNumber?: string | null;
     email?: string | null;
@@ -630,8 +630,8 @@ export interface UpdatePlotRequest {
     birthDate?: string | null;
     relationship: string;
     postalCode?: string | null;
-    address: string;
-    phoneNumber: string;
+    address?: string | null;
+    phoneNumber?: string | null;
     phoneNumber2?: string | null;
     faxNumber?: string | null;
     email?: string | null;

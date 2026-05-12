@@ -62,8 +62,8 @@ export interface FamilyContact {
   birthDate: string | null;  // ISO date string
   relationship: string;
   postalCode: string | null;
-  address: string;
-  phoneNumber: string;
+  address: string | null;  // レガシーDBで41%欠損のため nullable
+  phoneNumber: string | null;  // レガシーDBで3%欠損のため nullable
   phoneNumber2: string | null;  // 電話番号2
   faxNumber: string | null;
   email: string | null;
@@ -140,8 +140,8 @@ export interface FamilyContactInput {
   birthDate?: string | null;
   relationship: string;
   postalCode?: string | null;
-  address: string;
-  phoneNumber: string;
+  address?: string | null;
+  phoneNumber?: string | null;
   phoneNumber2?: string | null;
   faxNumber?: string | null;
   email?: string | null;

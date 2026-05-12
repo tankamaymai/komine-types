@@ -230,12 +230,14 @@ export const familyContactSchema = z.object({
   postalCode: z.string().max(10).optional().nullable(),
   address: z
     .string()
-    .min(1, '住所は必須です')
-    .max(200, '住所は200文字以内で入力してください'),
+    .max(200, '住所は200文字以内で入力してください')
+    .optional()
+    .nullable(),
   phoneNumber: z
     .string()
-    .min(1, '電話番号は必須です')
-    .max(20, '電話番号は20文字以内で入力してください'),
+    .max(20, '電話番号は20文字以内で入力してください')
+    .optional()
+    .nullable(),
   phoneNumber2: z.string().max(20).optional().nullable(),
   faxNumber: z.string().max(20).optional().nullable(),
   email: optionalEmailSchema.nullable(),
