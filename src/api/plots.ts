@@ -814,3 +814,22 @@ export interface BulkUpdatePlotsResponse {
   failed: BulkFailureItem[];
   results: BulkUpdateResultItem[];
 }
+
+/**
+ * 契約復活リクエスト（POST /api/v1/plots/:id/restore）
+ *
+ * terminated 状態の ContractPlot を active に戻す（誤操作リカバリ用）。
+ * reason は履歴に記録されるため必須（1〜200文字、空白のみは拒否）。
+ */
+export interface RestoreContractRequest {
+  reason: string;
+}
+
+/**
+ * 契約復活レスポンス（POST /api/v1/plots/:id/restore）
+ */
+export interface RestoreContractResponse {
+  message: string;
+  id: string;
+  contractStatus: ContractStatus;
+}
