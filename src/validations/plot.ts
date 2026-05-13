@@ -22,7 +22,6 @@ import {
   optionalNonnegativeNumber,
   katakanaSchema,
   postalCodeSchema,
-  requiredPhoneSchema,
   phoneSchema,
   yearMonthSchema,
 } from './common';
@@ -125,7 +124,7 @@ export const customerSchema = z.object({
     .max(200, '登録住所は200文字以内で入力してください')
     .optional()
     .nullable(),
-  phoneNumber: requiredPhoneSchema,
+  phoneNumber: phoneSchema.nullable(),
   faxNumber: phoneSchema.nullable(),
   email: optionalEmailSchema.nullable(),
   notes: z.string().max(1000, '備考は1000文字以内で入力してください').optional().nullable(),

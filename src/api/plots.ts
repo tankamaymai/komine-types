@@ -368,7 +368,7 @@ export interface CreatePlotRequest {
     address: string;
     addressLine2?: string | null;
     registeredAddress?: string | null;
-    phoneNumber: string;
+    phoneNumber: string | null;
     faxNumber?: string | null;
     email?: string | null;
     notes?: string | null;
@@ -565,7 +565,7 @@ export interface UpdatePlotRequest {
     address?: string;
     addressLine2?: string | null;
     registeredAddress?: string | null;
-    phoneNumber?: string;
+    phoneNumber?: string | null;
     faxNumber?: string | null;
     email?: string | null;
     notes?: string | null;
@@ -734,7 +734,7 @@ export interface CreatePlotResponse {
     id: string;
     name: string;
     nameKana: string;
-    phoneNumber: string;
+    phoneNumber: string | null;
     address: string;
     role: ContractRole;
   } | null;
@@ -748,7 +748,7 @@ export interface CreatePlotResponse {
       id: string;
       name: string;
       nameKana: string;
-      phoneNumber: string;
+      phoneNumber: string | null;
       address: string;
     };
   }>;

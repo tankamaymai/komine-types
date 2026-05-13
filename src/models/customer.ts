@@ -18,7 +18,7 @@ export interface Customer {
   address: string;
   addressLine2: string | null;  // 住所2（2行目）
   registeredAddress: string | null;
-  phoneNumber: string;
+  phoneNumber: string | null;
   faxNumber: string | null;
   email: string | null;
   notes: string | null;
@@ -114,7 +114,7 @@ export interface CustomerInput {
   address: string;
   addressLine2?: string | null;
   registeredAddress?: string | null;
-  phoneNumber: string;
+  phoneNumber: string | null;
   faxNumber?: string | null;
   email?: string | null;
   notes?: string | null;
