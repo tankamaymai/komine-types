@@ -127,6 +127,32 @@ export const customerSchema = z.object({
   phoneNumber: phoneSchema.nullable(),
   faxNumber: phoneSchema.nullable(),
   email: optionalEmailSchema.nullable(),
+  // 振込先情報（ゆうちょ自動払込 CSV 出力用。レガシー t_danka.kikan_name 系から移行）
+  bankName: z
+    .string()
+    .max(50, '銀行名は50文字以内で入力してください')
+    .optional()
+    .nullable(),
+  branchName: z
+    .string()
+    .max(50, '支店名は50文字以内で入力してください')
+    .optional()
+    .nullable(),
+  accountType: z
+    .string()
+    .max(10, '預金種目は10文字以内で入力してください')
+    .optional()
+    .nullable(),
+  accountNumber: z
+    .string()
+    .max(20, '口座番号は20文字以内で入力してください')
+    .optional()
+    .nullable(),
+  accountHolder: z
+    .string()
+    .max(100, '口座名義は100文字以内で入力してください')
+    .optional()
+    .nullable(),
   notes: z.string().max(1000, '備考は1000文字以内で入力してください').optional().nullable(),
   staffId: z.coerce.number().int().optional().nullable(),
   legacyDankaCd: z.coerce.number().int().optional().nullable(),

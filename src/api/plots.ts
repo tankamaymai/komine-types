@@ -285,6 +285,12 @@ export interface PlotDetailResponse {
       address: string | null;
       addressLine2: string | null;
       registeredAddress: string | null;
+      // 振込先情報（ゆうちょ自動払込 CSV 出力用、レガシー t_danka.kikan_name 系から移行）
+      bankName: string | null;
+      branchName: string | null;
+      accountType: string | null;
+      accountNumber: string | null;
+      accountHolder: string | null;
       notes: string | null;
       staffId: number | null;
       legacyDankaCd: number | null;
@@ -371,6 +377,11 @@ export interface CreatePlotRequest {
     phoneNumber: string | null;
     faxNumber?: string | null;
     email?: string | null;
+    bankName?: string | null;
+    branchName?: string | null;
+    accountType?: string | null;
+    accountNumber?: string | null;
+    accountHolder?: string | null;
     notes?: string | null;
     staffId?: number | null;
     legacyDankaCd?: number | null;
@@ -568,6 +579,11 @@ export interface UpdatePlotRequest {
     phoneNumber?: string | null;
     faxNumber?: string | null;
     email?: string | null;
+    bankName?: string | null;
+    branchName?: string | null;
+    accountType?: string | null;
+    accountNumber?: string | null;
+    accountHolder?: string | null;
     notes?: string | null;
     staffId?: number | null;
     legacyDankaCd?: number | null;

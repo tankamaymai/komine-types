@@ -21,6 +21,12 @@ export interface Customer {
   phoneNumber: string | null;
   faxNumber: string | null;
   email: string | null;
+  // 振込先情報（ゆうちょ自動払込 CSV 出力用。レガシー t_danka.kikan_name 系から移行）
+  bankName: string | null;
+  branchName: string | null;
+  accountType: string | null;     // ordinary / current / savings
+  accountNumber: string | null;
+  accountHolder: string | null;
   notes: string | null;
   staffId: number | null;       // 担当スタッフFK（レガシー tancd → matant）
   legacyDankaCd: number | null; // 移行用（レガシー t_danka.danka_cd）
@@ -117,6 +123,12 @@ export interface CustomerInput {
   phoneNumber: string | null;
   faxNumber?: string | null;
   email?: string | null;
+  // 振込先情報
+  bankName?: string | null;
+  branchName?: string | null;
+  accountType?: string | null;
+  accountNumber?: string | null;
+  accountHolder?: string | null;
   notes?: string | null;
   staffId?: number | null;
   legacyDankaCd?: number | null;
