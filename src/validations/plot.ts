@@ -119,6 +119,12 @@ export const customerSchema = z.object({
     .max(200, '住所行2は200文字以内で入力してください')
     .optional()
     .nullable(),
+  registeredPostalCode: z
+    .string()
+    .regex(/^\d{7}$/, '本籍郵便番号は7桁の数字で入力してください（ハイフンなし）')
+    .or(z.literal(''))
+    .optional()
+    .nullable(),
   registeredAddress: z
     .string()
     .max(200, '登録住所は200文字以内で入力してください')

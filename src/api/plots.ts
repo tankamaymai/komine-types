@@ -284,6 +284,7 @@ export interface PlotDetailResponse {
       postalCode: string | null;
       address: string | null;
       addressLine2: string | null;
+      registeredPostalCode: string | null;
       registeredAddress: string | null;
       // 振込先情報（ゆうちょ自動払込 CSV 出力用、レガシー t_danka.kikan_name 系から移行）
       bankName: string | null;
@@ -373,6 +374,7 @@ export interface CreatePlotRequest {
     postalCode: string;
     address: string;
     addressLine2?: string | null;
+    registeredPostalCode?: string | null;
     registeredAddress?: string | null;
     phoneNumber: string | null;
     faxNumber?: string | null;
@@ -575,6 +577,7 @@ export interface UpdatePlotRequest {
     postalCode?: string;
     address?: string;
     addressLine2?: string | null;
+    registeredPostalCode?: string | null;
     registeredAddress?: string | null;
     phoneNumber?: string | null;
     faxNumber?: string | null;
