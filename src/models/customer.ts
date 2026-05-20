@@ -17,6 +17,7 @@ export interface Customer {
   postalCode: string;
   address: string;
   addressLine2: string | null;  // 住所2（2行目）
+  registeredPostalCode: string | null;  // 本籍郵便番号（レガシー t_danka.honseki_zip）
   registeredAddress: string | null;
   phoneNumber: string | null;
   faxNumber: string | null;
@@ -119,6 +120,7 @@ export interface CustomerInput {
   postalCode: string;
   address: string;
   addressLine2?: string | null;
+  registeredPostalCode?: string | null;  // 本籍郵便番号
   registeredAddress?: string | null;
   phoneNumber: string | null;
   faxNumber?: string | null;
