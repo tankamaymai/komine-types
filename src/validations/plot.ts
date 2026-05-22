@@ -168,6 +168,58 @@ export const customerSchema = z.object({
     .default(ContractRole.Contractor),
 });
 
+// ===== 申込者スキーマ =====
+//
+// 旧画面では「申込者」と「契約者」を並列に表示する。新システムでは別 Customer +
+// SaleContractRole(role=applicant) として保存。住所等は契約者と異なる場合のみ入力するため
+// 必須項目は名前・カナのみ（業務確認 D2 #133 ベース）。
+
+export const applicantSchema = z.object({
+  name: z
+    .string()
+    .min(1, '氏名は必須です')
+    .max(100, '氏名は100文字以内で入力してください'),
+  nameKana: katakanaSchema('氏名カナ').max(
+    100,
+    '氏名カナは100文字以内で入力してください',
+  ),
+  birthDate: optionalDateSchema.nullable(),
+  gender: z.nativeEnum(Gender).optional().nullable(),
+  postalCode: z
+    .string()
+    .regex(/^\d{7}$/, '郵便番号は7桁の数字で入力してください（ハイフンなし）')
+    .or(z.literal(''))
+    .optional()
+    .nullable(),
+  address: z
+    .string()
+    .max(200, '住所は200文字以内で入力してください')
+    .optional()
+    .nullable(),
+  addressLine2: z
+    .string()
+    .max(200, '住所行2は200文字以内で入力してください')
+    .optional()
+    .nullable(),
+  registeredPostalCode: z
+    .string()
+    .regex(/^\d{7}$/, '本籍郵便番号は7桁の数字で入力してください（ハイフンなし）')
+    .or(z.literal(''))
+    .optional()
+    .nullable(),
+  registeredAddress: z
+    .string()
+    .max(200, '本籍地は200文字以内で入力してください')
+    .optional()
+    .nullable(),
+  phoneNumber: phoneSchema.optional().nullable(),
+  faxNumber: phoneSchema.optional().nullable(),
+  email: optionalEmailSchema.nullable(),
+  notes: z.string().max(1000, '備考は1000文字以内で入力してください').optional().nullable(),
+  staffId: z.coerce.number().int().optional().nullable(),
+  legacyDankaCd: z.coerce.number().int().optional().nullable(),
+});
+
 // ===== 勤務先情報スキーマ =====
 
 export const workInfoSchema = z.object({
@@ -364,6 +416,7 @@ export const plotFormSchema = z.object({
   contractPlot: contractPlotSchema,
   saleContract: saleContractSchema,
   customer: customerSchema,
+  applicant: applicantSchema.optional().nullable(),
   workInfo: workInfoSchema.optional().nullable(),
   usageFee: usageFeeSchema.optional().nullable(),
   managementFee: managementFeeSchema.optional().nullable(),
@@ -390,6 +443,7 @@ export const plotUpdateFormSchema = z.object({
   contractPlot: contractPlotSchema.partial().optional(),
   saleContract: saleContractSchema.partial().optional(),
   customer: customerSchema.partial().optional(),
+  applicant: applicantSchema.partial().optional().nullable(),
   workInfo: workInfoSchema.optional().nullable(),
   usageFee: usageFeeSchema.optional().nullable(),
   managementFee: managementFeeSchema.optional().nullable(),
@@ -406,6 +460,7 @@ export type PhysicalPlotFormData = z.infer<typeof physicalPlotSchema>;
 export type ContractPlotFormData = z.infer<typeof contractPlotSchema>;
 export type SaleContractFormData = z.infer<typeof saleContractSchema>;
 export type CustomerSectionFormData = z.infer<typeof customerSchema>;
+export type ApplicantSectionFormData = z.infer<typeof applicantSchema>;
 export type WorkInfoFormData = z.infer<typeof workInfoSchema>;
 export type UsageFeeFormData = z.infer<typeof usageFeeSchema>;
 export type ManagementFeeFormData = z.infer<typeof managementFeeSchema>;

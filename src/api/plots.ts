@@ -404,6 +404,25 @@ export interface CreatePlotRequest {
     role?: ContractRole;
   };
 
+  // 申込者（任意）。指定時は別 Customer + SaleContractRole(role=applicant) として作成される
+  applicant?: {
+    name: string;
+    nameKana: string;
+    birthDate?: string | null;
+    gender?: Gender | null;
+    postalCode?: string | null;
+    address?: string | null;
+    addressLine2?: string | null;
+    registeredPostalCode?: string | null;
+    registeredAddress?: string | null;
+    phoneNumber?: string | null;
+    faxNumber?: string | null;
+    email?: string | null;
+    notes?: string | null;
+    staffId?: number | null;
+    legacyDankaCd?: number | null;
+  } | null;
+
   workInfo?: {
     companyName: string;
     companyNameKana: string;
@@ -605,6 +624,26 @@ export interface UpdatePlotRequest {
     staffId?: number | null;
     legacyDankaCd?: number | null;
   };
+
+  // 申込者。指定時は upsert（既存なし→新規作成、既存あり→更新）。
+  // 明示的に null を送ると申込者 role を解除（soft-delete）。undefined は変更なし。
+  applicant?: {
+    name?: string;
+    nameKana?: string;
+    birthDate?: string | null;
+    gender?: Gender | null;
+    postalCode?: string | null;
+    address?: string | null;
+    addressLine2?: string | null;
+    registeredPostalCode?: string | null;
+    registeredAddress?: string | null;
+    phoneNumber?: string | null;
+    faxNumber?: string | null;
+    email?: string | null;
+    notes?: string | null;
+    staffId?: number | null;
+    legacyDankaCd?: number | null;
+  } | null;
 
   workInfo?: {
     companyName?: string;
