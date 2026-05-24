@@ -11,7 +11,30 @@ import {
   Gender,
   AddressType,
   DmSetting,
+  BillingRecordStatus,
 } from '../enums';
+
+/**
+ * 区画一覧の請求状況サマリ (B10)
+ *
+ * 旧画面01 の「受付済 / 09年 / 10年 …」の年度別請求 status を、一覧テーブルでは
+ * 1 列に集約して表示するためのサマリ。集計対象は管理料 (BillingCategory.management_fee)
+ * の Billing で、年度横断で「最新年度の status」と「未納年数」をまとめる。
+ *
+ * NOTE: 「未納」の定義 = 請求済だが完納していない status（billed / partial_paid / overdue）。
+ * pending（請求前）と paid / terminated / written_off は未納に含めない。
+ * 業務確認後に定義が変わる可能性あり（D カテゴリ）。
+ */
+export interface PlotBillingSummary {
+  /** 集計対象の管理料 Billing が 1 件でも存在するか */
+  hasBilling: boolean;
+  /** 最新（最も新しい対象年度）の管理料 Billing の年度。無ければ null */
+  latestYear: number | null;
+  /** 最新年度 Billing の status。無ければ null */
+  latestYearStatus: BillingRecordStatus | null;
+  /** 未納（billed / partial_paid / overdue）の管理料 Billing 件数 */
+  unpaidYearCount: number;
+}
 
 /**
  * Plot list item (GET /plots response item)
@@ -66,6 +89,9 @@ export interface PlotListItem {
   nextBillingDate: string | null;
   managementFee: string | null;
   uncollectedAmount: number;
+
+  // 請求状況サマリ (B10: 年度別請求 status の集約列)
+  billingSummary: PlotBillingSummary;
 
   // Metadata
   createdAt: string;
