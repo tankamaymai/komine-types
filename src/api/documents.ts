@@ -16,13 +16,21 @@
 // テンプレートタイプ
 // ============================================================
 
-export type DocumentTemplateType = 'invoice' | 'postcard' | 'permit' | 'payment-guide';
+export type DocumentTemplateType =
+  | 'invoice'
+  | 'postcard'
+  | 'permit'
+  | 'envelope-letter'
+  | 'envelope-base'
+  | 'payment-guide';
 
 /** 全テンプレートタイプ（順序維持） */
 export const DOCUMENT_TEMPLATE_TYPES: readonly DocumentTemplateType[] = [
   'invoice',
   'postcard',
   'permit',
+  'envelope-letter',
+  'envelope-base',
   'payment-guide',
 ] as const;
 
@@ -549,67 +557,96 @@ const PAGE_4_FIELDS: PermitField[] = [
   },
 ];
 
+// --- ページ単位の定義（許可証 / 封筒書 / 封筒台 で再利用） ---
+
+const CERTIFICATE_PAGE: PermitPage = {
+  pageIndex: 0,
+  label: '許可証書（横向き）',
+  baseFile: 'permit-base-1.pdf',
+  previewPng: '/permit-templates/permit-page-1.png',
+  widthPt: 728.4,
+  heightPt: 515.76,
+  previewWidthPx: 1214,
+  previewHeightPx: 860,
+  fields: PAGE_1_FIELDS,
+  enabled: true,
+};
+
+const ENVELOPE_LETTER_FRONT_PAGE: PermitPage = {
+  pageIndex: 1,
+  label: '封筒表',
+  baseFile: 'permit-base-2.pdf',
+  previewPng: '/permit-templates/permit-page-2.png',
+  widthPt: 515.76,
+  heightPt: 728.4,
+  previewWidthPx: 860,
+  previewHeightPx: 1214,
+  fields: PAGE_2_FIELDS,
+  enabled: true,
+};
+
+const ENVELOPE_LETTER_BACK_PAGE: PermitPage = {
+  pageIndex: 2,
+  label: '封筒裏',
+  baseFile: 'permit-base-3.pdf',
+  previewPng: '/permit-templates/permit-page-3.png',
+  widthPt: 515.76,
+  heightPt: 728.4,
+  previewWidthPx: 860,
+  previewHeightPx: 1214,
+  fields: [],
+  enabled: true,
+};
+
+const ENVELOPE_BASE_FRONT_PAGE: PermitPage = {
+  pageIndex: 3,
+  label: '大型封筒（表）',
+  baseFile: 'permit-base-4.pdf',
+  previewPng: '/permit-templates/permit-page-4.png',
+  widthPt: 728.4,
+  heightPt: 1031.76,
+  previewWidthPx: 1214,
+  previewHeightPx: 1720,
+  fields: PAGE_4_FIELDS,
+  enabled: true,
+};
+
+const ENVELOPE_BASE_BACK_PAGE: PermitPage = {
+  pageIndex: 4,
+  label: '大型封筒（裏）',
+  baseFile: 'permit-base-5.pdf',
+  previewPng: '/permit-templates/permit-page-5.png',
+  widthPt: 1031.76,
+  heightPt: 728.4,
+  previewWidthPx: 1720,
+  previewHeightPx: 1214,
+  fields: [],
+  enabled: true,
+};
+
+/** 許可証（永代使用許可証書・1枚） */
+export const PERMIT_CERTIFICATE_PAGES: readonly PermitPage[] = [CERTIFICATE_PAGE];
+
+/** 封筒書（送付用封筒・表面/裏面の2枚） */
+export const ENVELOPE_LETTER_PAGES: readonly PermitPage[] = [
+  ENVELOPE_LETTER_FRONT_PAGE,
+  ENVELOPE_LETTER_BACK_PAGE,
+];
+
+/** 封筒台（大型封筒・1枚） */
+export const ENVELOPE_BASE_PAGES: readonly PermitPage[] = [ENVELOPE_BASE_FRONT_PAGE];
+
+/**
+ * 後方互換: 旧 5 ページ一括定義（許可証書 + 封筒書 + 封筒台）。
+ * 新規コードは用途別に PERMIT_CERTIFICATE_PAGES / ENVELOPE_LETTER_PAGES /
+ * ENVELOPE_BASE_PAGES を使うこと。
+ */
 export const PERMIT_PAGES: PermitPage[] = [
-  {
-    pageIndex: 0,
-    label: '許可証書（1枚目・横向き）',
-    baseFile: 'permit-base-1.pdf',
-    previewPng: '/permit-templates/permit-page-1.png',
-    widthPt: 728.4,
-    heightPt: 515.76,
-    previewWidthPx: 1214,
-    previewHeightPx: 860,
-    fields: PAGE_1_FIELDS,
-    enabled: true,
-  },
-  {
-    pageIndex: 1,
-    label: '封筒表（2枚目）',
-    baseFile: 'permit-base-2.pdf',
-    previewPng: '/permit-templates/permit-page-2.png',
-    widthPt: 515.76,
-    heightPt: 728.4,
-    previewWidthPx: 860,
-    previewHeightPx: 1214,
-    fields: PAGE_2_FIELDS,
-    enabled: true,
-  },
-  {
-    pageIndex: 2,
-    label: '封筒裏（3枚目）',
-    baseFile: 'permit-base-3.pdf',
-    previewPng: '/permit-templates/permit-page-3.png',
-    widthPt: 515.76,
-    heightPt: 728.4,
-    previewWidthPx: 860,
-    previewHeightPx: 1214,
-    fields: [],
-    enabled: true,
-  },
-  {
-    pageIndex: 3,
-    label: '大型封筒表（4枚目）',
-    baseFile: 'permit-base-4.pdf',
-    previewPng: '/permit-templates/permit-page-4.png',
-    widthPt: 728.4,
-    heightPt: 1031.76,
-    previewWidthPx: 1214,
-    previewHeightPx: 1720,
-    fields: PAGE_4_FIELDS,
-    enabled: true,
-  },
-  {
-    pageIndex: 4,
-    label: '大型封筒裏（5枚目）',
-    baseFile: 'permit-base-5.pdf',
-    previewPng: '/permit-templates/permit-page-5.png',
-    widthPt: 1031.76,
-    heightPt: 728.4,
-    previewWidthPx: 1720,
-    previewHeightPx: 1214,
-    fields: [],
-    enabled: true,
-  },
+  CERTIFICATE_PAGE,
+  ENVELOPE_LETTER_FRONT_PAGE,
+  ENVELOPE_LETTER_BACK_PAGE,
+  ENVELOPE_BASE_FRONT_PAGE,
+  ENVELOPE_BASE_BACK_PAGE,
 ];
 
 /** ページインデックスをキーにしたレイアウトの辞書（フロントの旧API互換用） */
