@@ -11,3 +11,5 @@
 export * from './common';
 export * from './plot';
 export * from './document';
+export * from './billing';
+export * from './payment';
