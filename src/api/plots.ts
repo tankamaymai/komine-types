@@ -88,6 +88,7 @@ export interface PlotListItem {
   // Billing info
   nextBillingDate: string | null;
   managementFee: string | null;
+  /** サーバ導出値: active 請求の (請求額−入金額)。手入力不可・読み取り専用（#170）。 */
   uncollectedAmount: number;
 
   // 請求状況サマリ (B10: 年度別請求 status の集約列)
@@ -163,6 +164,7 @@ export interface PlotDetailResponse {
   permitDate: string | null;
   permitNumber: string | null;
   startDate: string | null;
+  /** サーバ導出値: active 請求の (請求額−入金額)。手入力不可・読み取り専用（#170）。 */
   uncollectedAmount: number;
   contractNotes: string | null;
   agentName: string | null;
@@ -390,6 +392,7 @@ export interface CreatePlotRequest {
     permitDate?: string | null;
     permitNumber?: string | null;
     startDate?: string | null;
+    /** @deprecated 手入力廃止（#170）。送信しても無視され、サーバが請求実績から導出した値で上書きされる。 */
     uncollectedAmount?: number | null;
     agentName?: string | null;
     notes?: string | null;
@@ -612,6 +615,7 @@ export interface UpdatePlotRequest {
     permitDate?: string | null;
     permitNumber?: string | null;
     startDate?: string | null;
+    /** @deprecated 手入力廃止（#170）。送信しても無視され、サーバが請求実績から導出した値で上書きされる。 */
     uncollectedAmount?: number | null;
     agentName?: string | null;
     notes?: string | null;
