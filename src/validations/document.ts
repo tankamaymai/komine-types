@@ -113,6 +113,20 @@ export const generatePdfRequestSchema = z.discriminatedUnion('templateType', [
     templateData: permitTemplateDataSchema,
     ...baseGeneratePdfFields,
   }),
+  // 封筒書・封筒台は許可証と同じテンプレートデータ（宛先系フィールド）を使う。
+  // backend documentValidation.ts の TEMPLATE_DATA_SCHEMAS（regenerate パス）と
+  // 同一の割り当て。union から欠落していると generate-pdf の入口で
+  // 'No matching discriminator' → 400 になり封筒PDFが一切出力できない（#32）
+  z.object({
+    templateType: z.literal('envelope-letter'),
+    templateData: permitTemplateDataSchema,
+    ...baseGeneratePdfFields,
+  }),
+  z.object({
+    templateType: z.literal('envelope-base'),
+    templateData: permitTemplateDataSchema,
+    ...baseGeneratePdfFields,
+  }),
   z.object({
     templateType: z.literal('payment-guide'),
     templateData: paymentGuideTemplateDataSchema,
