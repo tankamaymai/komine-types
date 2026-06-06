@@ -74,7 +74,8 @@ export const saleContractSchema = z.object({
     .default(PaymentStatus.Unpaid),
   reservationDate: optionalDateSchema,
   requestDate: optionalDateSchema,
-  acceptanceNumber: z.string().optional(),
+  // DB は acceptance_number @db.VarChar(50)。超過時の P2000 を入力時に弾く（#38）
+  acceptanceNumber: z.string().max(50, '受付番号は50文字以内で入力してください').optional(),
   acceptanceDate: optionalDateSchema,
   staffInCharge: z
     .string()
@@ -87,7 +88,8 @@ export const saleContractSchema = z.object({
     .optional()
     .nullable(),
   permitDate: optionalDateSchema,
-  permitNumber: z.string().optional(),
+  // DB は permit_number @db.VarChar(50)。超過時の P2000 を入力時に弾く（#38）
+  permitNumber: z.string().max(50, '許可書番号は50文字以内で入力してください').optional(),
   startDate: optionalDateSchema,
   notes: z.string().max(1000, '備考は1000文字以内で入力してください').optional().nullable(),
   graveKind: z.coerce.number().int().optional().nullable(),

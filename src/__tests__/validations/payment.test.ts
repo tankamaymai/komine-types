@@ -62,6 +62,27 @@ describe('createPaymentSchema', () => {
       createPaymentSchema.safeParse({ paymentAmount: 1, applicationType: 1.5 }).success,
     ).toBe(false);
   });
+
+  // DB VarChar 長との整合（#38）— 超過時に P2000 でなく入力時バリデーションで弾く
+  it('accepts feeType up to 50 chars and rejects 51 chars (VarChar(50))', () => {
+    expect(
+      createPaymentSchema.safeParse({ paymentAmount: 1, feeType: 'あ'.repeat(50) }).success,
+    ).toBe(true);
+    expect(
+      createPaymentSchema.safeParse({ paymentAmount: 1, feeType: 'あ'.repeat(51) }).success,
+    ).toBe(false);
+  });
+
+  it('accepts staffInCharge up to 100 chars and rejects 101 chars (VarChar(100))', () => {
+    expect(
+      createPaymentSchema.safeParse({ paymentAmount: 1, staffInCharge: 'あ'.repeat(100) })
+        .success,
+    ).toBe(true);
+    expect(
+      createPaymentSchema.safeParse({ paymentAmount: 1, staffInCharge: 'あ'.repeat(101) })
+        .success,
+    ).toBe(false);
+  });
 });
 
 describe('updatePaymentSchema (partial)', () => {

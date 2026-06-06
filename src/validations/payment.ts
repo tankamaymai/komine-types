@@ -30,10 +30,16 @@ export const createPaymentSchema = z.object({
     .optional(),
   paymentDate: nullableDate,
   paymentAmount: z.number().nonnegative('金額は0以上で入力してください'),
-  feeType: z.string().nullable().optional(),
+  // DB は fee_type @db.VarChar(50)。超過時の P2000 を入力時に弾く（#38）
+  feeType: z.string().max(50, '料金種別は50文字以内で入力してください').nullable().optional(),
   applicationType: nullableInt,
   billingType: nullableInt,
-  staffInCharge: z.string().nullable().optional(),
+  // DB は staff_in_charge @db.VarChar(100)。超過時の P2000 を入力時に弾く（#38）
+  staffInCharge: z
+    .string()
+    .max(100, '担当者は100文字以内で入力してください')
+    .nullable()
+    .optional(),
   notes: z.string().nullable().optional(),
 });
 
