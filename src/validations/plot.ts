@@ -365,17 +365,32 @@ export const buriedPersonSchema = z.object({
 
 export const constructionInfoSchema = z.object({
   id: z.string().optional(),
-  constructionType: z.string().max(100).optional().nullable(),
+  // DB は construction_type @db.VarChar(50)。超過時の P2000 を入力時に弾く（#40）
+  constructionType: z
+    .string()
+    .max(50, '工事区分は50文字以内で入力してください')
+    .optional()
+    .nullable(),
   startDate: optionalDateSchema.nullable(),
   completionDate: optionalDateSchema.nullable(),
   contractor: z.string().max(100).optional().nullable(),
   supervisor: z.string().max(100).optional().nullable(),
   progress: z.string().max(50).optional().nullable(),
-  workItem1: z.string().max(200).optional().nullable(),
+  // DB は work_item_1 @db.VarChar(100)。超過時の P2000 を入力時に弾く（#40）
+  workItem1: z
+    .string()
+    .max(100, '工事項目1は100文字以内で入力してください')
+    .optional()
+    .nullable(),
   workDate1: optionalDateSchema.nullable(),
   workAmount1: optionalNonnegativeInt.optional(),
   workStatus1: z.string().max(50).optional().nullable(),
-  workItem2: z.string().max(200).optional().nullable(),
+  // DB は work_item_2 @db.VarChar(100)。超過時の P2000 を入力時に弾く（#40）
+  workItem2: z
+    .string()
+    .max(100, '工事項目2は100文字以内で入力してください')
+    .optional()
+    .nullable(),
   workDate2: optionalDateSchema.nullable(),
   workAmount2: optionalNonnegativeInt.optional(),
   workStatus2: z.string().max(50).optional().nullable(),
