@@ -807,6 +807,12 @@ export interface UpdatePlotRequest {
     billingAmount?: number | null;
     notes?: string | null;
   } | null;
+
+  /**
+   * 変更理由（任意）。指定すると本更新で記録される履歴（History.change_reason, VarChar(200)）に反映される。
+   * UI はプリセット（名義変更/住所変更/電話番号変更/解約/合祀/修理/字彫/備品購入 等）＋自由入力を提供する（frontend #261）。
+   */
+  changeReason?: string;
 }
 
 /**
