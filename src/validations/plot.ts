@@ -57,6 +57,11 @@ export const contractPlotSchema = z.object({
     .max(200, '位置説明は200文字以内で入力してください')
     .optional()
     .nullable(),
+  inscription: z
+    .string()
+    .max(120, '碑文は120文字以内で入力してください')
+    .optional()
+    .nullable(),
 });
 
 // ===== 販売契約スキーマ =====
