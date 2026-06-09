@@ -210,6 +210,61 @@ export const PAYMENT_GUIDE_DEFAULTS: Required<
 // 許可証（permit）
 // ============================================================
 
+/** mm → PDF points */
+export const MM_TO_PT = 72 / 25.4;
+
+/** 長形3号封筒（120mm × 235mm）の PDF サイズ (pt) */
+export const ENVELOPE_CHOU3_WIDTH_PT = 120 * MM_TO_PT;
+export const ENVELOPE_CHOU3_HEIGHT_PT = 235 * MM_TO_PT;
+
+/** 長形3号・郵便番号枠（日本郵便定形郵便物仕様の目安） */
+export const POSTAL_CODE_TOP_MM = 12;
+export const POSTAL_CODE_RIGHT_MM = 8;
+export const POSTAL_CODE_GROUP_WIDTH_MM = 47.7;
+export const POSTAL_CODE_BOX_WIDTH_MM = 5.7;
+export const POSTAL_CODE_BOX_HEIGHT_MM = 8;
+export const POSTAL_CODE_GROUP_LEFT_MM =
+  120 - POSTAL_CODE_RIGHT_MM - POSTAL_CODE_GROUP_WIDTH_MM;
+/** 郵便番号枠左端を 0mm とした各桁ボックスの左位置 (mm) */
+export const POSTAL_CODE_DIGIT_LEFT_MM: readonly number[] = [
+  0, 7.0, 14.0, 21.6, 28.4, 35.2, 42.2,
+];
+
+/** 郵便番号文字列から7桁の数字配列を返す（ハイフンは除去） */
+export function splitPostalCodeDigits(code: string): string[] {
+  const digits = code.replace(/\D/g, '').slice(0, 7);
+  return Array.from({ length: 7 }, (_, i) => digits[i] ?? '');
+}
+
+function buildEnvelopeChou3PostalDigitField(
+  digitIndex: number,
+  pageIndex: number
+): PermitField {
+  const leftMm =
+    POSTAL_CODE_GROUP_LEFT_MM + POSTAL_CODE_DIGIT_LEFT_MM[digitIndex];
+  const boxWidthPt = POSTAL_CODE_BOX_WIDTH_MM * MM_TO_PT;
+  const boxHeightPt = POSTAL_CODE_BOX_HEIGHT_MM * MM_TO_PT;
+  const topPt = POSTAL_CODE_TOP_MM * MM_TO_PT;
+  const centerXPt = (leftMm + POSTAL_CODE_BOX_WIDTH_MM / 2) * MM_TO_PT;
+  const baselineYPt =
+    ENVELOPE_CHOU3_HEIGHT_PT - topPt - boxHeightPt * 0.62;
+
+  return {
+    id: `recipientPostalDigit${digitIndex + 1}`,
+    label: `郵便番号 ${digitIndex + 1}桁目`,
+    placeholder: String((digitIndex + 1) % 10),
+    pageIndex,
+    x: centerXPt,
+    y: baselineYPt,
+    fontSize: 11,
+    direction: 'horizontal',
+    align: 'center',
+    widthPt: boxWidthPt,
+    heightPt: boxHeightPt,
+    hint: '1',
+  };
+}
+
 /**
  * 座標系:
  *   - x, y は PDF の points。原点は各ページの左下（pdf-lib と同じ）。
@@ -293,14 +348,47 @@ export interface PermitTemplateData {
   issueDay?: string;
   applicantName?: string;
   registeredAddress?: string;
+  /** 本籍の2列目（○丁目以降） */
+  registeredAddress2?: string;
   currentAddress?: string;
+  /** 現住所の2列目（○丁目以降） */
+  currentAddress2?: string;
   /** 封筒の宛名・住所。許可証と同じ値を使う場合はフロントで自動同期 */
   recipientPostalCode?: string;
+  /** 長形3号封筒：郵便番号7桁（各枠に1桁、ハイフンは印字しない） */
+  recipientPostalDigit1?: string;
+  recipientPostalDigit2?: string;
+  recipientPostalDigit3?: string;
+  recipientPostalDigit4?: string;
+  recipientPostalDigit5?: string;
+  recipientPostalDigit6?: string;
+  recipientPostalDigit7?: string;
   recipientAddress?: string;
   recipientAddress2?: string;
   recipientName?: string;
   /** 任意：UI操作用の自由メモなど */
   notes?: string;
+}
+
+/**
+ * 許可証の本籍・現住所を「○丁目」までを1列目、以降を2列目に分割する。
+ * 丁目が無い場合は全体を1列目とし、2列目は空。
+ */
+export function splitPermitAddressAtChome(full: string): {
+  line1: string;
+  line2: string;
+} {
+  const trimmed = full.trim();
+  if (!trimmed) return { line1: '', line2: '' };
+
+  const match = trimmed.match(/^(.+?[0-9０-９]+丁目)(.*)$/u);
+  if (match) {
+    return {
+      line1: match[1].trim(),
+      line2: match[2].trim(),
+    };
+  }
+  return { line1: trimmed, line2: '' };
 }
 
 // ====== 許可証ページ定義 ======
@@ -314,7 +402,7 @@ const PAGE_1_FIELDS: PermitField[] = [
     label: '許可番号（第○号）',
     placeholder: '12345',
     pageIndex: 0,
-    x: 530,
+    x: 450,
     y: 340,
     fontSize: 14,
     bold: true,
@@ -328,7 +416,7 @@ const PAGE_1_FIELDS: PermitField[] = [
     label: '種別',
     placeholder: '普通墓地',
     pageIndex: 0,
-    x: 520,
+    x: 450,
     y: 295,
     fontSize: 13,
     direction: 'horizontal',
@@ -341,8 +429,8 @@ const PAGE_1_FIELDS: PermitField[] = [
     label: '区画番号',
     placeholder: 'A-56',
     pageIndex: 0,
-    x: 530,
-    y: 248,
+    x: 450,
+    y: 255,
     fontSize: 13,
     direction: 'horizontal',
     align: 'left',
@@ -354,8 +442,8 @@ const PAGE_1_FIELDS: PermitField[] = [
     label: '面積（㎡）',
     placeholder: '4.5',
     pageIndex: 0,
-    x: 525,
-    y: 198,
+    x: 450,
+    y: 210,
     fontSize: 13,
     direction: 'horizontal',
     align: 'left',
@@ -367,8 +455,8 @@ const PAGE_1_FIELDS: PermitField[] = [
     label: '発行 年',
     placeholder: '2026',
     pageIndex: 0,
-    x: 450,
-    y: 155,
+    x: 390,
+    y: 145,
     fontSize: 12,
     direction: 'horizontal',
     align: 'center',
@@ -380,8 +468,8 @@ const PAGE_1_FIELDS: PermitField[] = [
     label: '発行 月',
     placeholder: '4',
     pageIndex: 0,
-    x: 530,
-    y: 155,
+    x: 450,
+    y: 145,
     fontSize: 12,
     direction: 'horizontal',
     align: 'center',
@@ -393,8 +481,8 @@ const PAGE_1_FIELDS: PermitField[] = [
     label: '発行 日',
     placeholder: '23',
     pageIndex: 0,
-    x: 590,
-    y: 155,
+    x: 500,
+    y: 145,
     fontSize: 12,
     direction: 'horizontal',
     align: 'center',
@@ -406,8 +494,8 @@ const PAGE_1_FIELDS: PermitField[] = [
     label: '使用者名（殿）',
     placeholder: '丸山 千代美',
     pageIndex: 0,
-    x: 180,
-    y: 345,
+    x: 155,
+    y: 325,
     fontSize: 16,
     bold: true,
     direction: 'horizontal',
@@ -417,86 +505,105 @@ const PAGE_1_FIELDS: PermitField[] = [
   },
   {
     id: 'registeredAddress',
-    label: '本籍',
-    placeholder: '福岡県北九州市八幡西区小嶺',
+    label: '本籍（1列目）',
+    placeholder: '福岡県北九州市八幡西区小峰1丁目',
     pageIndex: 0,
     x: 140,
     y: 298,
     fontSize: 12,
     direction: 'horizontal',
     align: 'left',
-    widthPt: 230,
+    widthPt: 150,
+    heightPt: 18,
+  },
+  {
+    id: 'registeredAddress2',
+    label: '本籍（2列目）',
+    placeholder: '2番3号',
+    pageIndex: 0,
+    x: 145,
+    y: 270,
+    fontSize: 12,
+    direction: 'horizontal',
+    align: 'left',
+    widthPt: 120,
     heightPt: 18,
   },
   {
     id: 'currentAddress',
-    label: '現住所',
-    placeholder: '福岡県北九州市八幡西区…',
+    label: '現住所（1列目）',
+    placeholder: '福岡県北九州市八幡西区小峰1丁目',
     pageIndex: 0,
     x: 140,
-    y: 248,
+    y: 235,
     fontSize: 12,
     direction: 'horizontal',
     align: 'left',
-    widthPt: 230,
+    widthPt: 150,
+    heightPt: 18,
+  },
+  {
+    id: 'currentAddress2',
+    label: '現住所（2列目）',
+    placeholder: '2番3号',
+    pageIndex: 0,
+    x: 145,
+    y: 210,
+    fontSize: 12,
+    direction: 'horizontal',
+    align: 'left',
+    widthPt: 120,
     heightPt: 18,
   },
 ];
 
-// ページ2: 封筒表（郵便番号・宛先用）
+// ページ2: 封筒表（長形3号・郵便番号・宛先用）
+const PAGE_2_POSTAL_DIGIT_FIELDS: PermitField[] = Array.from(
+  { length: 7 },
+  (_, i) => buildEnvelopeChou3PostalDigitField(i, 1)
+);
+
 const PAGE_2_FIELDS: PermitField[] = [
-  {
-    id: 'recipientPostalCode',
-    label: '郵便番号',
-    placeholder: '807-0081',
-    pageIndex: 1,
-    x: 230,
-    y: 605,
-    fontSize: 18,
-    direction: 'horizontal',
-    align: 'left',
-    widthPt: 180,
-    heightPt: 24,
-  },
+  ...PAGE_2_POSTAL_DIGIT_FIELDS,
   {
     id: 'recipientAddress',
     label: '宛先住所',
     placeholder: '福岡県北九州市八幡西区…',
     pageIndex: 1,
-    x: 130,
-    y: 480,
-    fontSize: 16,
+    x: 52,
+    y: 400,
+    fontSize: 13,
     direction: 'horizontal',
     align: 'left',
-    widthPt: 300,
-    heightPt: 24,
+    widthPt: 230,
+    heightPt: 20,
   },
   {
     id: 'recipientAddress2',
     label: '宛先住所（2行目）',
     placeholder: '',
     pageIndex: 1,
-    x: 150,
-    y: 445,
-    fontSize: 16,
+    x: 58,
+    y: 370,
+    fontSize: 13,
     direction: 'horizontal',
     align: 'left',
-    widthPt: 280,
-    heightPt: 24,
+    widthPt: 220,
+    heightPt: 20,
   },
   {
     id: 'recipientName',
     label: '宛名',
     placeholder: '丸山 千代美 様',
     pageIndex: 1,
-    x: 150,
-    y: 380,
-    fontSize: 22,
+    x: 62,
+    y: 300,
+    fontSize: 17,
     bold: true,
     direction: 'horizontal',
     align: 'left',
-    widthPt: 280,
-    heightPt: 30,
+    widthPt: 220,
+    heightPt: 26,
   },
 ];
 
@@ -574,26 +681,26 @@ const CERTIFICATE_PAGE: PermitPage = {
 
 const ENVELOPE_LETTER_FRONT_PAGE: PermitPage = {
   pageIndex: 1,
-  label: '封筒表',
+  label: '封筒表（長形3号）',
   baseFile: 'permit-base-2.pdf',
-  previewPng: '/permit-templates/permit-page-2.png',
-  widthPt: 515.76,
-  heightPt: 728.4,
-  previewWidthPx: 860,
-  previewHeightPx: 1214,
+  previewPng: '/permit-templates/envelope-chou3-front.png',
+  widthPt: ENVELOPE_CHOU3_WIDTH_PT,
+  heightPt: ENVELOPE_CHOU3_HEIGHT_PT,
+  previewWidthPx: 480,
+  previewHeightPx: 940,
   fields: PAGE_2_FIELDS,
   enabled: true,
 };
 
 const ENVELOPE_LETTER_BACK_PAGE: PermitPage = {
   pageIndex: 2,
-  label: '封筒裏',
+  label: '封筒裏（長形3号）',
   baseFile: 'permit-base-3.pdf',
-  previewPng: '/permit-templates/permit-page-3.png',
-  widthPt: 515.76,
-  heightPt: 728.4,
-  previewWidthPx: 860,
-  previewHeightPx: 1214,
+  previewPng: '/permit-templates/envelope-chou3-back.png',
+  widthPt: ENVELOPE_CHOU3_WIDTH_PT,
+  heightPt: ENVELOPE_CHOU3_HEIGHT_PT,
+  previewWidthPx: 480,
+  previewHeightPx: 940,
   fields: [],
   enabled: true,
 };
