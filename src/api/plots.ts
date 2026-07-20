@@ -135,6 +135,34 @@ export interface GraveClassificationsResponse {
 }
 
 /**
+ * 空き区画（物理区画のみ）の先行登録リクエスト (POST /plots/physical)
+ *
+ * 旧システムの「区画を先に作り、後から契約者情報を入れる」運用に対応する
+ * （システム確認 項目⑦）。契約者・契約情報は持たず、在庫（区画残数管理）にのみ現れる。
+ */
+export interface CreatePhysicalPlotRequest {
+  plotNumber: string;
+  displayNumber?: string | null;
+  areaName: string;
+  /** ㎡。省略時は 3.6 */
+  areaSqm?: number;
+  mapId?: number | null;
+  notes?: string | null;
+}
+
+/** POST /plots/physical のレスポンス */
+export interface CreatePhysicalPlotResponse {
+  id: string;
+  plotNumber: string;
+  displayNumber: string | null;
+  areaName: string;
+  areaSqm: number;
+  status: PhysicalPlotStatus;
+  notes: string | null;
+  createdAt: string;
+}
+
+/**
  * Plot detail response (GET /plots/:id)
  */
 export interface PlotDetailResponse {
