@@ -664,7 +664,7 @@ const PAGE_4_FIELDS: PermitField[] = [
   },
 ];
 
-// --- ページ単位の定義（許可証 / 封筒書 / 封筒台 で再利用） ---
+// --- ページ単位の定義（許可証 / 封筒書 / 封筒大 で再利用） ---
 
 const CERTIFICATE_PAGE: PermitPage = {
   pageIndex: 0,
@@ -740,11 +740,11 @@ export const ENVELOPE_LETTER_PAGES: readonly PermitPage[] = [
   ENVELOPE_LETTER_BACK_PAGE,
 ];
 
-/** 封筒台（大型封筒・1枚） */
+/** 封筒大（大型封筒・1枚） */
 export const ENVELOPE_BASE_PAGES: readonly PermitPage[] = [ENVELOPE_BASE_FRONT_PAGE];
 
 /**
- * 後方互換: 旧 5 ページ一括定義（許可証書 + 封筒書 + 封筒台）。
+ * 後方互換: 旧 5 ページ一括定義（許可証書 + 封筒書 + 封筒大）。
  * 新規コードは用途別に PERMIT_CERTIFICATE_PAGES / ENVELOPE_LETTER_PAGES /
  * ENVELOPE_BASE_PAGES を使うこと。
  */
