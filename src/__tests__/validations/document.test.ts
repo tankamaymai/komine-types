@@ -2,7 +2,7 @@
  * generatePdfRequestSchema のテスト（#32）
  *
  * discriminated union に全テンプレートタイプが揃っていることを保証する。
- * envelope-letter / envelope-base が欠落していたため、封筒書・封筒台の
+ * envelope-letter / envelope-base が欠落していたため、封筒書・封筒大の
  * PDF生成が入口の Zod 検証で常に 400 になっていた。
  */
 
