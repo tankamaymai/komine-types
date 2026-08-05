@@ -108,6 +108,13 @@ export interface BuriedPerson {
   chiefMournerRelationship: string | null;  // 喪主続柄（レガシー moshu_zokugara）
   /** 合祀年数の個別上書き（null=区画の合祀年数を継承）。人によって短くする運用に対応（komine-docs#10 項目8）。 */
   validityPeriodYearsOverride: number | null;
+  /**
+   * 最終納骨者かどうか（議事録 2026-07-21 §1）。
+   * true の人の burialDate が合祀カウントダウンの起点になる（未設定なら契約日起点）。
+   * 契約人数と実際の納骨人数が一致しないケース（4人契約だが3人で終了）に対応するため、
+   * 上限人数の到達ではなく運用側の明示指定で確定させる。1契約区画につき1人まで。
+   */
+  isFinalBurial: boolean;
   notes: string | null;
 }
 
@@ -188,5 +195,7 @@ export interface BuriedPersonInput {
   chiefMournerName?: string | null;
   chiefMournerRelationship?: string | null;
   validityPeriodYearsOverride?: number | null;
+  /** 最終納骨者かどうか（既定 false）。true の人の burialDate が合祀カウントダウンの起点になる。 */
+  isFinalBurial?: boolean;
   notes?: string | null;
 }
