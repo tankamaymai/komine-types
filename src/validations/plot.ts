@@ -365,8 +365,24 @@ export const buriedPersonSchema = z.object({
     .positive('合祀年数は1年以上で入力してください')
     .optional()
     .nullable(),
+  // 最終納骨者。true の人の burialDate が合祀カウントダウンの起点になる。
+  // 1契約区画につき1人まで（複数指定は区画単位の refine で弾く）。
+  isFinalBurial: z.boolean().optional(),
   notes: z.string().max(500).optional().nullable(),
 });
+
+/**
+ * 埋葬者の配列。
+ *
+ * 最終納骨者は1契約区画につき1人までに制限する。複数指定を許すと合祀カウントダウンの
+ * 起点日が一意に決まらないため。既存の埋葬者と合わせた重複は DB を見ないと判定できないので、
+ * backend 側でも同じ不変条件を検証する。
+ */
+export const buriedPersonsSchema = z
+  .array(buriedPersonSchema)
+  .refine((list) => list.filter((person) => person.isFinalBurial === true).length <= 1, {
+    message: '最終納骨者は1人までしか指定できません',
+  });
 
 // ===== 工事情報スキーマ =====
 
@@ -446,7 +462,7 @@ export const plotFormSchema = z.object({
   managementFee: managementFeeSchema.optional().nullable(),
   gravestoneInfo: gravestoneInfoSchema.optional().nullable(),
   familyContacts: z.array(familyContactSchema).optional(),
-  buriedPersons: z.array(buriedPersonSchema).optional(),
+  buriedPersons: buriedPersonsSchema.optional(),
   constructionInfos: z.array(constructionInfoSchema).optional(),
   collectiveBurial: collectiveBurialSchema.optional().nullable(),
 });
@@ -473,7 +489,7 @@ export const plotUpdateFormSchema = z.object({
   managementFee: managementFeeSchema.optional().nullable(),
   gravestoneInfo: gravestoneInfoSchema.optional().nullable(),
   familyContacts: z.array(familyContactSchema).optional(),
-  buriedPersons: z.array(buriedPersonSchema).optional(),
+  buriedPersons: buriedPersonsSchema.optional(),
   constructionInfos: z.array(constructionInfoSchema).optional(),
   collectiveBurial: collectiveBurialSchema.optional().nullable(),
 });
