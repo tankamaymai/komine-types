@@ -1,7 +1,11 @@
 /**
  * 区画スキーマのユニットテスト
  */
-import { constructionInfoSchema, saleContractSchema } from '../../validations/plot';
+import {
+  buriedPersonsSchema,
+  constructionInfoSchema,
+  saleContractSchema,
+} from '../../validations/plot';
 
 describe('saleContractSchema', () => {
   it('accepts an empty payload (all fields optional)', () => {
@@ -63,5 +67,33 @@ describe('constructionInfoSchema', () => {
     if (!r.success) {
       expect(r.error.issues[0]?.message).toBe('工事項目2は100文字以内で入力してください');
     }
+  });
+});
+
+describe('buriedPersonsSchema', () => {
+  // 合祀カウントダウンの起点日は最終納骨者の埋葬日で決まるため、
+  // 複数指定されると起点が一意に決まらない（議事録 2026-07-21 §1）
+  it('最終納骨者が1人なら通す', () => {
+    const r = buriedPersonsSchema.safeParse([
+      { name: '田中一郎', isFinalBurial: false },
+      { name: '田中花子', isFinalBurial: true },
+    ]);
+    expect(r.success).toBe(true);
+  });
+
+  it('最終納骨者が2人以上なら弾く', () => {
+    const r = buriedPersonsSchema.safeParse([
+      { name: '田中一郎', isFinalBurial: true },
+      { name: '田中花子', isFinalBurial: true },
+    ]);
+    expect(r.success).toBe(false);
+    if (!r.success) {
+      expect(r.error.issues[0]?.message).toBe('最終納骨者は1人までしか指定できません');
+    }
+  });
+
+  it('最終納骨者が未指定でも通す（契約日起点にフォールバックする）', () => {
+    expect(buriedPersonsSchema.safeParse([{ name: '田中一郎' }]).success).toBe(true);
+    expect(buriedPersonsSchema.safeParse([]).success).toBe(true);
   });
 });

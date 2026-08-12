@@ -163,6 +163,40 @@ export interface CreatePhysicalPlotResponse {
 }
 
 /**
+ * 空き区画一覧の1件（GET /plots/vacant）
+ *
+ * 議事録 2026-07-21 §6: 新規顧客登録時の区画指定を手入力不可の選択式にするための選択肢。
+ * 空き判定は在庫系と同じ「総面積 − active 契約の合計 > 0」（#209）。
+ */
+export interface VacantPlotItem {
+  id: string;
+  /** ユニークキー。移行データは legacy-{grave_cd} のため表示には使わない */
+  plotNumber: string;
+  /** 表示用区画番号（grave_name_cd 由来）。未設定なら null */
+  displayNumber: string | null;
+  areaName: string;
+  areaSqm: number;
+  /** 空き面積。部分販売済みの区画は残り面積になる */
+  availableAreaSqm: number;
+}
+
+/** GET /plots/vacant のクエリ */
+export interface VacantPlotsParams {
+  /** 区画名（エリア）の完全一致。空き区画は約2,500件あるため通常は必須で使う */
+  areaName?: string;
+  /** 区画番号の部分一致（表示番号・内部番号の両方を対象） */
+  search?: string;
+  page?: number;
+  limit?: number;
+}
+
+/** GET /plots/vacant のレスポンス */
+export interface VacantPlotsResponse {
+  items: VacantPlotItem[];
+  pagination: PaginationMeta;
+}
+
+/**
  * Plot detail response (GET /plots/:id)
  */
 export interface PlotDetailResponse {
@@ -252,8 +286,10 @@ export interface PlotDetailResponse {
     causeOfDeath: string | null;
     chiefMournerName: string | null;
     chiefMournerRelationship: string | null;
-    /** 合祀年数の個別上書き（null=区画の合祀年数を継承）。合祀予定日は契約日+解決年数で算出。 */
+    /** 合祀年数の個別上書き（null=区画の合祀年数を継承）。 */
     validityPeriodYearsOverride: number | null;
+    /** 最終納骨者。true の人の burialDate が合祀カウントダウンの起点になる（未指定なら契約日起点）。 */
+    isFinalBurial: boolean;
     notes: string | null;
   }>;
 
@@ -575,6 +611,8 @@ export interface CreatePlotRequest {
     chiefMournerName?: string | null;
     chiefMournerRelationship?: string | null;
     validityPeriodYearsOverride?: number | null;
+    /** 最終納骨者。true の人の burialDate が合祀カウントダウンの起点になる。 */
+    isFinalBurial?: boolean;
     notes?: string | null;
   }>;
 
@@ -801,6 +839,8 @@ export interface UpdatePlotRequest {
     chiefMournerName?: string | null;
     chiefMournerRelationship?: string | null;
     validityPeriodYearsOverride?: number | null;
+    /** 最終納骨者。true の人の burialDate が合祀カウントダウンの起点になる。 */
+    isFinalBurial?: boolean;
     notes?: string | null;
   }>;
 
