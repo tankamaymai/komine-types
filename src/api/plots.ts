@@ -163,6 +163,44 @@ export interface CreatePhysicalPlotResponse {
 }
 
 /**
+ * 空き区画の範囲一括登録リクエスト（POST /plots/physical/bulk）
+ *
+ * 議事録 2026-07-21 §6: 「将来的に区画を増設した場合に備え、『何番から何番まで』と
+ * 範囲を指定して空き区画を一括で登録できる機能」への対応。
+ *
+ * 生成規則:
+ *   displayNumber = `${prefix ?? ''}${n}`            例: "1"…"50" / "A-1"…"A-50"
+ *   plotNumber    = `${areaName}-${prefix ?? ''}${n}` 例: "C-1"（ユニーク制約のため区画名を含める）
+ */
+export interface CreatePhysicalPlotsBulkRequest {
+  areaName: string;
+  /** 番号の接頭辞（任意）。実データの display_number は接頭辞なしの連番が基本 */
+  prefix?: string;
+  startNumber: number;
+  endNumber: number;
+  /** ㎡。省略時は 3.6。区画名により実面積は大きく異なる（凛=0.013 / 納骨堂=0.09） */
+  areaSqm?: number;
+  mapId?: number | null;
+  notes?: string | null;
+}
+
+/** 一括登録でスキップされた1件 */
+export interface SkippedPhysicalPlot {
+  plotNumber: string;
+  displayNumber: string;
+  reason: string;
+}
+
+/** POST /plots/physical/bulk のレスポンス */
+export interface CreatePhysicalPlotsBulkResponse {
+  created: CreatePhysicalPlotResponse[];
+  createdCount: number;
+  /** 既に登録済みでスキップしたもの（論理削除済みを含めて重複判定する） */
+  skipped: SkippedPhysicalPlot[];
+  skippedCount: number;
+}
+
+/**
  * 空き区画一覧の1件（GET /plots/vacant）
  *
  * 議事録 2026-07-21 §6: 新規顧客登録時の区画指定を手入力不可の選択式にするための選択肢。
