@@ -144,3 +144,40 @@ export const generatePdfRequestSchema = z.discriminatedUnion('templateType', [
 ]);
 
 export type GeneratePdfRequestInput = z.infer<typeof generatePdfRequestSchema>;
+
+// ============================================================
+// 請求書の一括印刷
+// ============================================================
+
+/** クエリ文字列は常に string で届くため、数値・真偽値・配列を寛容に受ける */
+const coercedYear = z.coerce.number().int().min(1900).max(2999);
+const coercedMonth = z.coerce.number().int().min(1).max(12);
+
+/** `"5,10"` / `["5","10"]` / `[5,10]` のいずれも受け取り number[] に正規化する */
+const billingYearsList = z
+  .union([z.string(), z.array(z.union([z.string(), z.number()]))])
+  .transform((v) => (Array.isArray(v) ? v : v.split(',')))
+  .transform((arr) => arr.map((x) => Number(String(x).trim())))
+  .refine((arr) => arr.length > 0 && arr.every((n) => Number.isInteger(n) && n >= 1 && n <= 99), {
+    message: 'billingYears は 1〜99 の整数で指定してください',
+  });
+
+const coercedBoolean = z
+  .union([z.boolean(), z.enum(['true', 'false'])])
+  .transform((v) => v === true || v === 'true');
+
+export const bulkInvoiceTargetsQuerySchema = z.object({
+  year: coercedYear,
+  month: coercedMonth.optional(),
+  billingYears: billingYearsList.optional(),
+  includeOverdue: coercedBoolean.optional(),
+});
+
+export type BulkInvoiceTargetsQueryInput = z.infer<typeof bulkInvoiceTargetsQuerySchema>;
+
+export const generateBulkInvoiceRequestSchema = bulkInvoiceTargetsQuerySchema.extend({
+  contractPlotIds: z.array(z.string().uuid()).min(1).optional(),
+  textStylePreset: z.enum(['default', 'mincho', 'gothic_large', 'compact']).optional(),
+});
+
+export type GenerateBulkInvoiceRequestInput = z.infer<typeof generateBulkInvoiceRequestSchema>;
