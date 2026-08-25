@@ -785,6 +785,93 @@ export interface GeneratePdfRequest {
   customerId?: string;
 }
 
+// ============================================================
+// 請求書（護持費のお知らせ）の一括印刷
+// ============================================================
+
+/** HTML テンプレートの書体プリセット（テンプレート側の `body.doc-preset-*` と対応） */
+export type DocumentTextStylePreset = 'default' | 'mincho' | 'gothic_large' | 'compact';
+
+export const DOCUMENT_TEXT_STYLE_PRESETS: readonly DocumentTextStylePreset[] = [
+  'default',
+  'mincho',
+  'gothic_large',
+  'compact',
+];
+
+/**
+ * 一括印刷の既定対象となる請求年数。
+ *
+ * 年払い（1）と永代・請求なし（0）は対象外。議事録 7 章の
+ * 「年払い以外の契約者（十年一回または五年一回払い）」に対応する。
+ */
+export const BULK_INVOICE_DEFAULT_BILLING_YEARS: readonly number[] = [5, 10];
+
+/** 一括印刷の既定請求月（3月の繁忙期に一括送付する運用） */
+export const BULK_INVOICE_DEFAULT_MONTH = 3;
+
+/** 一括印刷の対象 1 件 */
+export interface BulkInvoiceTarget {
+  contractPlotId: string;
+  customerId: string | null;
+  customerName: string;
+  customerNameKana: string | null;
+  areaName: string | null;
+  plotNumber: string | null;
+  displayNumber: string | null;
+  /** 請求年数（5 = 五年一回、10 = 十年一回） */
+  billingYears: number;
+  /** 請求月（1〜12）。不明なら null */
+  billingMonth: number | null;
+  /** 最終請求月 `"2021-03"`。未請求なら null */
+  lastBillingMonth: string | null;
+  /** 今回の請求対象年（= 最終請求月の年 + 請求年数） */
+  targetYear: number;
+  /** 請求金額（円） */
+  amount: number;
+  /** 次回のお預かり（例: `"2032年3月"`） */
+  nextNoticeDate: string;
+  /** 指定年より前に請求されるべきだった（請求漏れの疑い） */
+  overdue: boolean;
+}
+
+/** GET /api/v1/documents/bulk-invoice/targets のクエリ */
+export interface BulkInvoiceTargetsQuery {
+  /** 請求対象年（例: 2027） */
+  year: number;
+  /** 請求月。既定は `BULK_INVOICE_DEFAULT_MONTH` */
+  month?: number;
+  /** 対象とする請求年数。既定は `BULK_INVOICE_DEFAULT_BILLING_YEARS` */
+  billingYears?: number[];
+  /** 指定年より前の請求漏れも含める（既定 true） */
+  includeOverdue?: boolean;
+}
+
+export interface BulkInvoiceTargetsResponse {
+  targets: BulkInvoiceTarget[];
+  /** 対象件数 */
+  total: number;
+  /** 対象金額の合計（円） */
+  totalAmount: number;
+}
+
+/** POST /api/v1/documents/bulk-invoice/generate のリクエストボディ */
+export interface GenerateBulkInvoiceRequest extends BulkInvoiceTargetsQuery {
+  /** 印刷する区画を絞り込む。未指定なら対象全件 */
+  contractPlotIds?: string[];
+  textStylePreset?: DocumentTextStylePreset;
+}
+
+export interface GenerateBulkInvoiceResponse {
+  /** 全件を 1 ファイルに結合した PDF（base64） */
+  pdf: string;
+  mimeType: 'application/pdf';
+  fileName: string;
+  fileSize: number;
+  /** 結合した請求書の枚数 */
+  count: number;
+}
+
 /** ファイル名から OS 上で問題のある文字を除去する共通サニタイザ */
 export function sanitizeDocumentFileName(rawName: string | null | undefined): string {
   const safe = (rawName ?? '').replace(/[/\\?%*:|"<>]/g, '_').trim();
