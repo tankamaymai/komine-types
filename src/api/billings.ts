@@ -126,6 +126,8 @@ export interface PrepaidBillingYearRow {
   amount: number;
   /** 既存の管理料請求が既にこの年をカバーしている */
   duplicated: boolean;
+  /** 年が入っていない既存請求があり、この年が請求済みか機械判定できない */
+  needsReview: boolean;
 }
 
 export interface PrepaidBillingPreviewRequest {
@@ -151,6 +153,13 @@ export interface PrepaidBillingPreviewResponse {
   difference: number | null;
   /** 既存請求と重複する年（1 件でもあれば登録できない） */
   duplicatedYears: number[];
+  /**
+   * 請求済みか機械判定できない年。
+   *
+   * 年が入っていない既存請求がある区画で発生する。登録は止めないが、
+   * 窓口で既存請求を確かめてもらうため画面に警告を出す。
+   */
+  needsReviewYears: number[];
 }
 
 export interface CreatePrepaidBillingRequest {
