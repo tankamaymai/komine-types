@@ -184,6 +184,33 @@ export interface CreatePrepaidBillingResponse {
 
 export type DeletePrepaidBillingResponse = MessageResponse;
 
+export interface ListUnpaidBillingsQuery {
+  q: string;
+  year?: number;
+  category?: BillingCategory;
+}
+
+export interface UnpaidBillingItem {
+  billingId: string;
+  contractPlotId: string;
+  customerId: string | null;
+  contractorName: string | null;
+  buriedPersonName: string | null;
+  plotNumber: string | null;
+  displayNumber: string | null;
+  category: BillingCategory;
+  year: number | null;
+  remainingAmount: number;
+}
+
+export interface UnpaidBillingsResponse {
+  items: UnpaidBillingItem[];
+}
+
+export interface SettleRemainingRequest {
+  billingId: string;
+}
+
 // ===== Payment =====
 
 export interface PaymentsListResponse {

@@ -65,3 +65,11 @@ export const updateBillingSchema = z.object({
 
 export type CreateBillingInput = z.infer<typeof createBillingSchema>;
 export type UpdateBillingInput = z.infer<typeof updateBillingSchema>;
+
+export const listUnpaidBillingsQuerySchema = z.object({
+  q: z.string().trim().min(1, '名前か区画番号を書いてください'),
+  year: z.coerce.number().int().min(1900).max(2200).optional(),
+  category: z.nativeEnum(BillingCategory).optional(),
+});
+
+export type ListUnpaidBillingsQueryInput = z.infer<typeof listUnpaidBillingsQuerySchema>;
