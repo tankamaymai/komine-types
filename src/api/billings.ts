@@ -207,6 +207,18 @@ export interface UnpaidBillingsResponse {
   items: UnpaidBillingItem[];
 }
 
+export interface ListUncollectedBillingsQuery {
+  q?: string;
+  year?: number;
+  page?: number;
+  limit?: number;
+}
+
+export interface UncollectedBillingsResponse {
+  items: UnpaidBillingItem[];
+  pagination: BillingsPaginationMeta;
+}
+
 export interface SettleRemainingRequest {
   billingId: string;
 }
