@@ -73,3 +73,18 @@ export const listUnpaidBillingsQuerySchema = z.object({
 });
 
 export type ListUnpaidBillingsQueryInput = z.infer<typeof listUnpaidBillingsQuerySchema>;
+
+export const listUncollectedBillingsQuerySchema = z.object({
+  q: z
+    .string()
+    .trim()
+    .optional()
+    .transform((v) => (v === undefined || v === '' ? undefined : v)),
+  year: z.coerce.number().int().min(1900).max(2200).optional(),
+  page: z.coerce.number().int().min(1).default(1),
+  limit: z.coerce.number().int().min(1).max(100).default(50),
+});
+
+export type ListUncollectedBillingsQueryInput = z.infer<
+  typeof listUncollectedBillingsQuerySchema
+>;
