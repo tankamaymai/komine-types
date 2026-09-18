@@ -50,6 +50,8 @@ export interface Billing {
   applicationType: number | null;
   billingType: number | null;
   notes: string | null;
+  /** 前受金一括登録の単位を識別する ID（取り消し用。通常の請求・入金は null） */
+  prepaidBatchId: string | null;
   legacySeikyuCd: number | null;
   customer: BillingCustomerSummary | null;
   plotNumber: string | null;
@@ -93,6 +95,8 @@ export interface Payment {
   billingType: number | null;
   staffInCharge: string | null;
   notes: string | null;
+  /** 前受金一括登録の単位を識別する ID（取り消し用。通常の請求・入金は null） */
+  prepaidBatchId: string | null;
   legacyNyukinCd: number | null;
   billing: BillingSummaryForPayment | null;
   customer: BillingCustomerSummary | null;
