@@ -104,6 +104,11 @@ const baseGeneratePdfFields = {
   name: z.string().optional(),
   contractPlotId: z.string().uuid().optional(),
   customerId: z.string().uuid().optional(),
+  /**
+   * true のとき許可証は台紙の絵を入れず、入力文字だけを同じ位置に置く。
+   * すでに印刷された厚紙へ重ねて印刷するための出力。PDF保存では使わない。
+   */
+  textOnly: z.boolean().optional(),
 };
 
 export const generatePdfRequestSchema = z.discriminatedUnion('templateType', [
