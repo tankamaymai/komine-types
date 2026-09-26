@@ -54,6 +54,8 @@ export interface InvoiceTemplateData {
   nextNoticeDate?: string;
   /** 季節の挨拶（例: 早春の候 / 盛夏の候 など） */
   seasonGreeting?: string;
+  /** 印刷する紙。未指定は A4 */
+  paperSize?: 'a4' | 'b5' | 'a5' | 'b4';
 
   // 旧請求書テンプレート互換フィールド（任意）
   invoiceNumber?: string;
@@ -156,6 +158,8 @@ export interface PaymentGuideTemplateData {
   cemeteryName?: string;
   tel?: string;
   fax?: string;
+  /** 印刷する紙。未指定は A4 */
+  paperSize?: 'a4' | 'b5' | 'a5' | 'b4';
 }
 
 /**
@@ -252,7 +256,7 @@ function buildEnvelopeChou3PostalDigitField(
   return {
     id: `recipientPostalDigit${digitIndex + 1}`,
     label: `郵便番号 ${digitIndex + 1}桁目`,
-    placeholder: String((digitIndex + 1) % 10),
+    placeholder: '',
     pageIndex,
     x: centerXPt,
     y: baselineYPt,
@@ -569,7 +573,7 @@ const PAGE_2_FIELDS: PermitField[] = [
   {
     id: 'recipientAddress',
     label: '宛先住所',
-    placeholder: '福岡県北九州市八幡西区',
+    placeholder: '見本県見本市見本区',
     pageIndex: 1,
     // 郵便番号枠の下、右側の縦書き。x は列の中心、y は1文字目の上端。
     x: 300,
@@ -583,7 +587,7 @@ const PAGE_2_FIELDS: PermitField[] = [
   {
     id: 'recipientAddress2',
     label: '宛先住所（2列目）',
-    placeholder: '小嶺台1丁目2番3号',
+    placeholder: '見本1丁目2番3号',
     pageIndex: 1,
     x: 268,
     y: 570,
@@ -596,7 +600,7 @@ const PAGE_2_FIELDS: PermitField[] = [
   {
     id: 'recipientName',
     label: '宛名',
-    placeholder: '丸山 千代美 様',
+    placeholder: 'コミネ太郎 様',
     pageIndex: 1,
     x: 170,
     y: 500,
@@ -631,7 +635,7 @@ function buildEnvelopeBasePostalDigitField(digitIndex: number): PermitField {
   return {
     id: `recipientPostalDigit${digitIndex + 1}`,
     label: `郵便番号 ${digitIndex + 1}桁目`,
-    placeholder: String((digitIndex + 1) % 10),
+    placeholder: '',
     pageIndex: 3,
     x: centerXPt,
     y: boxCenterY - 16 * 0.35,
@@ -650,7 +654,7 @@ const PAGE_4_FIELDS: PermitField[] = [
   {
     id: 'recipientAddress',
     label: '宛先住所',
-    placeholder: '福岡県北九州市八幡西区',
+    placeholder: '見本県見本市見本区',
     pageIndex: 3,
     x: 620,
     y: 930,
@@ -663,7 +667,7 @@ const PAGE_4_FIELDS: PermitField[] = [
   {
     id: 'recipientAddress2',
     label: '宛先住所（2列目）',
-    placeholder: '小嶺台1丁目2番3号',
+    placeholder: '見本1丁目2番3号',
     pageIndex: 3,
     x: 570,
     y: 900,
@@ -676,7 +680,7 @@ const PAGE_4_FIELDS: PermitField[] = [
   {
     id: 'recipientName',
     label: '宛名',
-    placeholder: '丸山 千代美 様',
+    placeholder: 'コミネ太郎 様',
     pageIndex: 3,
     x: 360,
     y: 820,
