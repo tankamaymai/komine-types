@@ -52,6 +52,8 @@ export interface PlotListItem {
   // 表示はこちらを優先する（未設定時は plotNumber にフォールバック）。#158
   displayNumber?: string | null;
   areaName: string;
+  /** 区画名マスタから解決した期（第1期 / 第3期樹林部 / その他） */
+  period?: string;
   physicalPlotAreaSqm: number;
   physicalPlotStatus: PhysicalPlotStatus;
 
@@ -130,6 +132,8 @@ export interface PlotSearchParams extends SearchParams {
   graveType?: number;
   /** 利用中（既定）/ 空き区画 / 全て */
   occupancy?: 'in_use' | 'vacant' | 'all';
+  /** 第1期 / 第2期 / 第3期 / 第3期樹林部 / 第4期 / その他 */
+  period?: string;
 }
 
 /**
