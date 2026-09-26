@@ -52,6 +52,8 @@ export interface PlotListItem {
   // 表示はこちらを優先する（未設定時は plotNumber にフォールバック）。#158
   displayNumber?: string | null;
   areaName: string;
+  /** 区画名マスタから解決した期（第1期 / 第3期樹林部 / その他） */
+  period?: string;
   physicalPlotAreaSqm: number;
   physicalPlotStatus: PhysicalPlotStatus;
 
@@ -59,6 +61,8 @@ export interface PlotListItem {
   contractDate: string | null;  // レガシー実態に合わせて nullable
   price: number | null;          // レガシー実態に合わせて nullable
   paymentStatus: PaymentStatus;
+  /** 利用中 / 空き / 解約。一覧の左端表示と行色分けに使う */
+  contractStatus: ContractStatus;
 
   // Primary customer (backward compatibility)
   customerName: string | null;
@@ -92,6 +96,10 @@ export interface PlotListItem {
   // Billing info
   nextBillingDate: string | null;
   managementFee: string | null;
+  /** 管理料の請求区分（永代 / あり / なし）。旧システムの「永代」表示用 */
+  managementFeeBillingType: string | null;
+  /** 管理料の請求年数（10 / 5 / 0=永代 など）。旧システムの「１０年」表示用 */
+  managementFeeBillingYears: string | null;
   /** サーバ導出値: active 請求の (請求額−入金額)。手入力不可・読み取り専用（#170）。 */
   uncollectedAmount: number;
 
@@ -122,6 +130,10 @@ export interface PlotSearchParams extends SearchParams {
   graveKind?: number;
   graveKubun?: number;
   graveType?: number;
+  /** 利用中（既定）/ 空き区画 / 全て */
+  occupancy?: 'in_use' | 'vacant' | 'all';
+  /** 第1期 / 第2期 / 第3期 / 第3期樹林部 / 第4期 / その他 */
+  period?: string;
 }
 
 /**
@@ -132,6 +144,8 @@ export interface GraveClassificationsResponse {
   graveKinds: number[];
   graveKubuns: number[];
   graveTypes: number[];
+  /** 台帳に出ているエリア名（物理区画の distinct）。フィルタの選択肢用 */
+  areaNames: string[];
 }
 
 /**

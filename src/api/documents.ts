@@ -54,6 +54,8 @@ export interface InvoiceTemplateData {
   nextNoticeDate?: string;
   /** 季節の挨拶（例: 早春の候 / 盛夏の候 など） */
   seasonGreeting?: string;
+  /** 印刷する紙。未指定は A4 */
+  paperSize?: 'a4' | 'b5' | 'a5' | 'b4';
 
   // 旧請求書テンプレート互換フィールド（任意）
   invoiceNumber?: string;
@@ -156,6 +158,8 @@ export interface PaymentGuideTemplateData {
   cemeteryName?: string;
   tel?: string;
   fax?: string;
+  /** 印刷する紙。未指定は A4 */
+  paperSize?: 'a4' | 'b5' | 'a5' | 'b4';
 }
 
 /**
@@ -252,7 +256,7 @@ function buildEnvelopeChou3PostalDigitField(
   return {
     id: `recipientPostalDigit${digitIndex + 1}`,
     label: `郵便番号 ${digitIndex + 1}桁目`,
-    placeholder: String((digitIndex + 1) % 10),
+    placeholder: '',
     pageIndex,
     x: centerXPt,
     y: baselineYPt,
@@ -427,14 +431,14 @@ const PAGE_1_FIELDS: PermitField[] = [
   {
     id: 'plotNumber',
     label: '区画番号',
-    placeholder: 'A-56',
+    placeholder: 'A-56、B-12',
     pageIndex: 0,
     x: 450,
     y: 255,
     fontSize: 13,
     direction: 'horizontal',
     align: 'left',
-    widthPt: 85,
+    widthPt: 180,
     heightPt: 18,
   },
   {
@@ -455,7 +459,8 @@ const PAGE_1_FIELDS: PermitField[] = [
     label: '発行 年',
     placeholder: '2026',
     pageIndex: 0,
-    x: 390,
+    // 画面のプレビューで、元の位置より約21px右。月・日より年だけさらに5px右。1pt がほぼ1px。
+    x: 411,
     y: 145,
     fontSize: 12,
     direction: 'horizontal',
@@ -468,7 +473,7 @@ const PAGE_1_FIELDS: PermitField[] = [
     label: '発行 月',
     placeholder: '4',
     pageIndex: 0,
-    x: 450,
+    x: 466,
     y: 145,
     fontSize: 12,
     direction: 'horizontal',
@@ -481,7 +486,7 @@ const PAGE_1_FIELDS: PermitField[] = [
     label: '発行 日',
     placeholder: '23',
     pageIndex: 0,
-    x: 500,
+    x: 516,
     y: 145,
     fontSize: 12,
     direction: 'horizontal',
@@ -568,99 +573,123 @@ const PAGE_2_FIELDS: PermitField[] = [
   {
     id: 'recipientAddress',
     label: '宛先住所',
-    placeholder: '福岡県北九州市八幡西区…',
+    placeholder: '見本県見本市見本区',
     pageIndex: 1,
-    x: 52,
-    y: 400,
-    fontSize: 13,
-    direction: 'horizontal',
-    align: 'left',
-    widthPt: 230,
-    heightPt: 20,
+    // 郵便番号枠の下、右側の縦書き。x は列の中心、y は1文字目の上端。
+    x: 300,
+    y: 590,
+    fontSize: 14,
+    direction: 'vertical',
+    lineHeight: 20,
+    widthPt: 24,
+    heightPt: 340,
   },
   {
     id: 'recipientAddress2',
-    label: '宛先住所（2行目）',
-    placeholder: '',
+    label: '宛先住所（2列目）',
+    placeholder: '見本1丁目2番3号',
     pageIndex: 1,
-    x: 58,
-    y: 370,
-    fontSize: 13,
-    direction: 'horizontal',
-    align: 'left',
-    widthPt: 220,
-    heightPt: 20,
+    x: 268,
+    y: 570,
+    fontSize: 14,
+    direction: 'vertical',
+    lineHeight: 20,
+    widthPt: 24,
+    heightPt: 320,
   },
   {
     id: 'recipientName',
     label: '宛名',
-    placeholder: '丸山 千代美 様',
+    placeholder: 'コミネ太郎 様',
     pageIndex: 1,
-    x: 62,
-    y: 300,
-    fontSize: 17,
+    x: 170,
+    y: 500,
+    fontSize: 22,
     bold: true,
-    direction: 'horizontal',
-    align: 'left',
-    widthPt: 220,
-    heightPt: 26,
+    direction: 'vertical',
+    lineHeight: 32,
+    widthPt: 36,
+    heightPt: 280,
   },
 ];
 
-// ページ4: 大型封筒の表（郵便番号あり）
-const PAGE_4_FIELDS: PermitField[] = [
-  {
-    id: 'recipientPostalCode',
-    label: '郵便番号',
-    placeholder: '807-0081',
+/**
+ * 封筒大の郵便番号枠。台紙画像（1214×1720px）の黒い枠を測った位置。
+ * 3桁、空き、4桁。各枠は約46×64px。
+ */
+const ENVELOPE_BASE_POSTAL_LEFT_PX = [729, 779, 829, 884, 934, 984, 1034] as const;
+const ENVELOPE_BASE_POSTAL_TOP_PX = 57;
+const ENVELOPE_BASE_POSTAL_BOX_W_PX = 46;
+const ENVELOPE_BASE_POSTAL_BOX_H_PX = 64;
+const ENVELOPE_BASE_PX_TO_X = 728.4 / 1214;
+const ENVELOPE_BASE_PX_TO_Y = 1031.76 / 1720;
+
+function buildEnvelopeBasePostalDigitField(digitIndex: number): PermitField {
+  const leftPx = ENVELOPE_BASE_POSTAL_LEFT_PX[digitIndex] ?? 0;
+  const widthPt = ENVELOPE_BASE_POSTAL_BOX_W_PX * ENVELOPE_BASE_PX_TO_X;
+  const heightPt = ENVELOPE_BASE_POSTAL_BOX_H_PX * ENVELOPE_BASE_PX_TO_Y;
+  const centerXPt = (leftPx + ENVELOPE_BASE_POSTAL_BOX_W_PX / 2) * ENVELOPE_BASE_PX_TO_X;
+  const topPt = ENVELOPE_BASE_POSTAL_TOP_PX * ENVELOPE_BASE_PX_TO_Y;
+  const boxCenterY = 1031.76 - topPt - heightPt / 2;
+
+  return {
+    id: `recipientPostalDigit${digitIndex + 1}`,
+    label: `郵便番号 ${digitIndex + 1}桁目`,
+    placeholder: '',
     pageIndex: 3,
-    x: 530,
-    y: 950,
-    fontSize: 20,
+    x: centerXPt,
+    y: boxCenterY - 16 * 0.35,
+    fontSize: 16,
     direction: 'horizontal',
-    align: 'left',
-    widthPt: 180,
-    heightPt: 26,
-  },
+    align: 'center',
+    widthPt,
+    heightPt,
+    hint: '1',
+  };
+}
+
+// ページ4: 大型封筒の表。郵便番号は枠の中、住所は右側の縦書き、名前は中央の縦書き。
+const PAGE_4_FIELDS: PermitField[] = [
+  ...Array.from({ length: 7 }, (_, i) => buildEnvelopeBasePostalDigitField(i)),
   {
     id: 'recipientAddress',
     label: '宛先住所',
-    placeholder: '福岡県北九州市八幡西区…',
+    placeholder: '見本県見本市見本区',
     pageIndex: 3,
-    x: 120,
-    y: 820,
-    fontSize: 18,
-    direction: 'horizontal',
-    align: 'left',
-    widthPt: 500,
-    heightPt: 28,
+    x: 620,
+    y: 930,
+    fontSize: 16,
+    direction: 'vertical',
+    lineHeight: 24,
+    widthPt: 28,
+    heightPt: 420,
   },
   {
     id: 'recipientAddress2',
-    label: '宛先住所（2行目）',
-    placeholder: '',
+    label: '宛先住所（2列目）',
+    placeholder: '見本1丁目2番3号',
     pageIndex: 3,
-    x: 140,
-    y: 780,
-    fontSize: 18,
-    direction: 'horizontal',
-    align: 'left',
-    widthPt: 480,
-    heightPt: 28,
+    x: 570,
+    y: 900,
+    fontSize: 16,
+    direction: 'vertical',
+    lineHeight: 24,
+    widthPt: 28,
+    heightPt: 400,
   },
   {
     id: 'recipientName',
     label: '宛名',
-    placeholder: '丸山 千代美 様',
+    placeholder: 'コミネ太郎 様',
     pageIndex: 3,
-    x: 180,
-    y: 700,
-    fontSize: 26,
+    x: 360,
+    y: 820,
+    fontSize: 28,
     bold: true,
-    direction: 'horizontal',
-    align: 'left',
-    widthPt: 460,
-    heightPt: 36,
+    direction: 'vertical',
+    lineHeight: 40,
+    widthPt: 44,
+    heightPt: 320,
   },
 ];
 
@@ -689,19 +718,6 @@ const ENVELOPE_LETTER_FRONT_PAGE: PermitPage = {
   previewWidthPx: 480,
   previewHeightPx: 940,
   fields: PAGE_2_FIELDS,
-  enabled: true,
-};
-
-const ENVELOPE_LETTER_BACK_PAGE: PermitPage = {
-  pageIndex: 2,
-  label: '封筒裏（長形3号）',
-  baseFile: 'permit-base-3.pdf',
-  previewPng: '/permit-templates/envelope-chou3-back.png',
-  widthPt: ENVELOPE_CHOU3_WIDTH_PT,
-  heightPt: ENVELOPE_CHOU3_HEIGHT_PT,
-  previewWidthPx: 480,
-  previewHeightPx: 940,
-  fields: [],
   enabled: true,
 };
 
@@ -734,11 +750,8 @@ const ENVELOPE_BASE_BACK_PAGE: PermitPage = {
 /** 許可証（永代使用許可証書・1枚） */
 export const PERMIT_CERTIFICATE_PAGES: readonly PermitPage[] = [CERTIFICATE_PAGE];
 
-/** 封筒書（送付用封筒・表面/裏面の2枚） */
-export const ENVELOPE_LETTER_PAGES: readonly PermitPage[] = [
-  ENVELOPE_LETTER_FRONT_PAGE,
-  ENVELOPE_LETTER_BACK_PAGE,
-];
+/** 封筒書（送付用封筒・表面のみ） */
+export const ENVELOPE_LETTER_PAGES: readonly PermitPage[] = [ENVELOPE_LETTER_FRONT_PAGE];
 
 /** 封筒大（大型封筒・1枚） */
 export const ENVELOPE_BASE_PAGES: readonly PermitPage[] = [ENVELOPE_BASE_FRONT_PAGE];
@@ -751,7 +764,6 @@ export const ENVELOPE_BASE_PAGES: readonly PermitPage[] = [ENVELOPE_BASE_FRONT_P
 export const PERMIT_PAGES: PermitPage[] = [
   CERTIFICATE_PAGE,
   ENVELOPE_LETTER_FRONT_PAGE,
-  ENVELOPE_LETTER_BACK_PAGE,
   ENVELOPE_BASE_FRONT_PAGE,
   ENVELOPE_BASE_BACK_PAGE,
 ];
@@ -783,6 +795,8 @@ export interface GeneratePdfRequest {
   name?: string;
   contractPlotId?: string;
   customerId?: string;
+  /** 許可証を厚紙へ重ね刷りするとき、台紙の絵を省いて文字だけ出す */
+  textOnly?: boolean;
 }
 
 // ============================================================
