@@ -24,6 +24,7 @@ export const invoiceTemplateDataSchema = z.object({
   amount: z.number().optional(),
   nextNoticeDate: z.string().optional(),
   seasonGreeting: z.string().optional(),
+  paperSize: z.enum(['a4', 'b5', 'a5', 'b4']).optional(),
 
   invoiceNumber: z.string().optional(),
   issueDate: z.string().optional(),
@@ -93,6 +94,7 @@ export const paymentGuideTemplateDataSchema = z.object({
   cemeteryName: z.string().optional(),
   tel: z.string().optional(),
   fax: z.string().optional(),
+  paperSize: z.enum(['a4', 'b5', 'a5', 'b4']).optional(),
 });
 
 // ============================================================
