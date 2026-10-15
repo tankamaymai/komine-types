@@ -99,12 +99,15 @@ describe('generatePdfRequestSchema (#32)', () => {
     expect(digit?.y).toBeGreaterThan(950);
   });
 
-  it('許可証の発行年は月・日よりさらに右、月と日は元の位置より約16px右', () => {
+  it('許可証の文字は台紙の線に合うよう右へ寄せ、年・月・日の間隔は保つ', () => {
     const fields = PERMIT_CERTIFICATE_PAGES[0]?.fields ?? [];
     const xOf = (id: string) => fields.find((field) => field.id === id)?.x;
-    expect(xOf('issueYear')).toBe(411);
-    expect(xOf('issueMonth')).toBe(466);
-    expect(xOf('issueDay')).toBe(516);
+    // 実物印刷で全体が左に寄っていたため、全項目を 28pt（約1cm）右へ。
+    expect(xOf('issueYear')).toBe(439);
+    expect(xOf('issueMonth')).toBe(494);
+    expect(xOf('issueDay')).toBe(544);
+    expect(xOf('applicantName')).toBe(183);
+    expect(xOf('registeredAddress')).toBe(168);
   });
 
   it('templateData の型不一致は拒否する（invoice に customerName 欠落）', () => {
