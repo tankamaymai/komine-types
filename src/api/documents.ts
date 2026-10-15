@@ -400,19 +400,21 @@ export function splitPermitAddressAtChome(full: string): {
 //   微調整が必要な場合はこのファイルの値をチューニングしてください。
 
 // ページ1: メインの許可証（横向き: 728.4 x 515.76 pt, 横書き）
+// 文字どうしの並びは、旧システムの許可証の配置に合わせている。
+// 旧システムでは番号・種別・面積を欄のまん中（x=475）にそろえていた。
 const PAGE_1_FIELDS: PermitField[] = [
   {
     id: 'permitNumber',
     label: '許可番号（第○号）',
     placeholder: '12345',
     pageIndex: 0,
-    x: 450,
+    x: 475,
     y: 340,
     fontSize: 14,
     bold: true,
     direction: 'horizontal',
-    align: 'left',
-    widthPt: 85,
+    align: 'center',
+    widthPt: 60,
     heightPt: 18,
   },
   {
@@ -420,12 +422,12 @@ const PAGE_1_FIELDS: PermitField[] = [
     label: '種別',
     placeholder: '普通墓地',
     pageIndex: 0,
-    x: 450,
+    x: 475,
     y: 295,
     fontSize: 13,
     direction: 'horizontal',
-    align: 'left',
-    widthPt: 95,
+    align: 'center',
+    widthPt: 64,
     heightPt: 18,
   },
   {
@@ -446,12 +448,12 @@ const PAGE_1_FIELDS: PermitField[] = [
     label: '面積（㎡）',
     placeholder: '4.5',
     pageIndex: 0,
-    x: 450,
+    x: 475,
     y: 210,
     fontSize: 13,
     direction: 'horizontal',
-    align: 'left',
-    widthPt: 95,
+    align: 'center',
+    widthPt: 60,
     heightPt: 18,
   },
   {
@@ -459,8 +461,7 @@ const PAGE_1_FIELDS: PermitField[] = [
     label: '発行 年',
     placeholder: '2026',
     pageIndex: 0,
-    // 画面のプレビューで、元の位置より約21px右。月・日より年だけさらに5px右。1pt がほぼ1px。
-    x: 411,
+    x: 397,
     y: 145,
     fontSize: 12,
     direction: 'horizontal',
@@ -473,7 +474,7 @@ const PAGE_1_FIELDS: PermitField[] = [
     label: '発行 月',
     placeholder: '4',
     pageIndex: 0,
-    x: 466,
+    x: 457,
     y: 145,
     fontSize: 12,
     direction: 'horizontal',
@@ -486,7 +487,7 @@ const PAGE_1_FIELDS: PermitField[] = [
     label: '発行 日',
     placeholder: '23',
     pageIndex: 0,
-    x: 516,
+    x: 501,
     y: 145,
     fontSize: 12,
     direction: 'horizontal',
@@ -499,7 +500,7 @@ const PAGE_1_FIELDS: PermitField[] = [
     label: '使用者名（殿）',
     placeholder: '丸山 千代美',
     pageIndex: 0,
-    x: 155,
+    x: 191,
     y: 325,
     fontSize: 16,
     bold: true,

@@ -99,12 +99,19 @@ describe('generatePdfRequestSchema (#32)', () => {
     expect(digit?.y).toBeGreaterThan(950);
   });
 
-  it('許可証の発行年は月・日よりさらに右、月と日は元の位置より約16px右', () => {
+  it('許可証の名前・年月日・右の欄は、旧システムの並びに合わせる', () => {
     const fields = PERMIT_CERTIFICATE_PAGES[0]?.fields ?? [];
-    const xOf = (id: string) => fields.find((field) => field.id === id)?.x;
-    expect(xOf('issueYear')).toBe(411);
-    expect(xOf('issueMonth')).toBe(466);
-    expect(xOf('issueDay')).toBe(516);
+    const fieldOf = (id: string) => fields.find((field) => field.id === id);
+    expect(fieldOf('applicantName')?.x).toBe(191);
+    expect(fieldOf('issueYear')?.x).toBe(397);
+    expect(fieldOf('issueMonth')?.x).toBe(457);
+    expect(fieldOf('issueDay')?.x).toBe(501);
+    for (const id of ['permitNumber', 'permitType', 'area']) {
+      expect(fieldOf(id)?.x).toBe(475);
+      expect(fieldOf(id)?.align).toBe('center');
+    }
+    expect(fieldOf('plotNumber')?.x).toBe(450);
+    expect(fieldOf('plotNumber')?.align).toBe('left');
   });
 
   it('templateData の型不一致は拒否する（invoice に customerName 欠落）', () => {
