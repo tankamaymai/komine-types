@@ -2,6 +2,7 @@
  * 区画スキーマのユニットテスト
  */
 import {
+  additionalPlotsFieldSchema,
   buriedPersonsSchema,
   constructionInfoSchema,
   saleContractSchema,
@@ -95,5 +96,43 @@ describe('buriedPersonsSchema', () => {
   it('最終納骨者が未指定でも通す（契約日起点にフォールバックする）', () => {
     expect(buriedPersonsSchema.safeParse([{ name: '田中一郎' }]).success).toBe(true);
     expect(buriedPersonsSchema.safeParse([]).success).toBe(true);
+  });
+});
+
+describe('additionalPlotsFieldSchema', () => {
+  const item = {
+    physicalPlot: { id: '11111111-1111-4111-8111-111111111111', plotNumber: 'A-10' },
+    contractPlot: { contractAreaSqm: 1.8 },
+  };
+  const extras = (n: number) =>
+    Array.from({ length: n }, (_, i) => ({
+      ...item,
+      physicalPlot: { id: `11111111-1111-4111-8111-${String(i).padStart(12, '0')}` },
+    }));
+
+  it('accepts undefined and an empty array', () => {
+    expect(additionalPlotsFieldSchema.safeParse(undefined).success).toBe(true);
+    expect(additionalPlotsFieldSchema.safeParse([]).success).toBe(true);
+  });
+
+  it('accepts one extra plot chosen by id', () => {
+    expect(additionalPlotsFieldSchema.safeParse([item]).success).toBe(true);
+  });
+
+  it('rejects an extra plot without physicalPlot.id', () => {
+    const r = additionalPlotsFieldSchema.safeParse([{ ...item, physicalPlot: { plotNumber: 'A-10' } }]);
+    expect(r.success).toBe(false);
+  });
+
+  it('rejects a zero contract area', () => {
+    const r = additionalPlotsFieldSchema.safeParse([{ ...item, contractPlot: { contractAreaSqm: 0 } }]);
+    expect(r.success).toBe(false);
+  });
+
+  it('accepts 19 extras (20 with the first) and rejects 20 extras', () => {
+    expect(additionalPlotsFieldSchema.safeParse(extras(19)).success).toBe(true);
+    const r = additionalPlotsFieldSchema.safeParse(extras(20));
+    expect(r.success).toBe(false);
+    if (!r.success) expect(r.error.issues[0].message).toBe('一度に登録できる区画は20件までです');
   });
 });

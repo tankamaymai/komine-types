@@ -489,9 +489,12 @@ export interface PlotDetailResponse {
  */
 export interface CreatePlotRequest {
   physicalPlot: {
+    /** 既存の空き区画に契約を付けるときの物理区画ID。指定時は他の項目は使われない */
     id?: string;
-    plotNumber: string;
-    areaName: string;
+    /** id 無し（区画を新しく作る）ときは必須 */
+    plotNumber?: string;
+    /** id 無し（区画を新しく作る）ときは必須 */
+    areaName?: string;
     areaSqm?: number;
     mapId?: number | null;
     notes?: string | null;
@@ -706,6 +709,35 @@ export interface CreatePlotRequest {
     billingAmount?: number | null;
     notes?: string | null;
   };
+
+  /**
+   * まとめ買いの2つ目以降の区画。1つ目と同じ契約者で、区画ごとに契約を作る。
+   * 埋葬者・墓石など付帯情報は1つ目にだけ付く。
+   */
+  additionalPlots?: AdditionalPlotInput[];
+}
+
+/**
+ * まとめ買い登録の2つ目以降の区画（POST /plots の additionalPlots）
+ */
+export interface AdditionalPlotInput {
+  physicalPlot: {
+    /** 既存の空き（または一部販売済み）の物理区画 */
+    id: string;
+    plotNumber?: string;
+    areaName?: string;
+  };
+  contractPlot: {
+    contractAreaSqm: number;
+    locationDescription?: string | null;
+  };
+  /** 未指定の項目は1つ目の販売契約の値を使う */
+  saleContract?: {
+    price?: number | null;
+    notes?: string | null;
+  };
+  usageFee?: CreatePlotRequest['usageFee'] | null;
+  managementFee?: CreatePlotRequest['managementFee'] | null;
 }
 
 /**
@@ -1010,4 +1042,38 @@ export interface RestoreContractResponse {
   message: string;
   id: string;
   contractStatus: ContractStatus;
+}
+
+/**
+ * 契約解約リクエスト（POST /api/v1/plots/:id/terminate）
+ * active の ContractPlot を terminated にする。reason は履歴に記録されるため必須。
+ */
+export interface TerminateContractRequest {
+  reason: string;
+}
+
+/**
+ * 契約解約レスポンス（POST /api/v1/plots/:id/terminate）
+ */
+export interface TerminateContractResponse {
+  message: string;
+  id: string;
+  contractStatus: ContractStatus;
+}
+
+/**
+ * 人ごとの一括解約リクエスト（POST /api/v1/plots/by-contractor/:customerId/terminate-all）
+ * その人が今の契約者になっている active な契約を全部 terminated にする。
+ */
+export interface TerminateAllByContractorRequest {
+  reason: string;
+}
+
+/**
+ * 人ごとの一括解約レスポンス
+ */
+export interface TerminateAllByContractorResponse {
+  message: string;
+  customerId: string;
+  terminatedIds: string[];
 }

@@ -281,6 +281,36 @@ export const managementFeeSchema = z.object({
   paymentMethod: z.string().max(20).optional().nullable(),
 });
 
+// ===== 追加区画スキーマ（まとめ買い登録用） =====
+
+/** 1回の新規登録で作れる区画の上限（1つ目を含む）。打ち間違い防止 */
+export const MAX_PLOTS_PER_REGISTRATION = 20;
+
+export const additionalPlotSchema = z.object({
+  physicalPlot: z.object({
+    id: z.string().uuid('追加する区画は、空き（または残りの分）から選んでください'),
+    plotNumber: z.string().max(50).optional(),
+    areaName: z.string().max(100).optional(),
+  }),
+  contractPlot: contractPlotSchema,
+  saleContract: z
+    .object({
+      price: z.coerce.number().nonnegative('価格は0以上で入力してください').optional().nullable(),
+      notes: z.string().max(1000, '備考は1000文字以内で入力してください').optional().nullable(),
+    })
+    .optional(),
+  usageFee: usageFeeSchema.optional().nullable(),
+  managementFee: managementFeeSchema.optional().nullable(),
+});
+
+export const additionalPlotsFieldSchema = z
+  .array(additionalPlotSchema)
+  .max(
+    MAX_PLOTS_PER_REGISTRATION - 1,
+    `一度に登録できる区画は${MAX_PLOTS_PER_REGISTRATION}件までです`,
+  )
+  .optional();
+
 // ===== 墓石情報スキーマ =====
 
 export const gravestoneInfoSchema = z.object({
