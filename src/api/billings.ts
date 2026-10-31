@@ -201,6 +201,8 @@ export interface UnpaidBillingItem {
   category: BillingCategory;
   year: number | null;
   remainingAmount: number;
+  /** 次に払う日 YYYY-MM-DD。約束が無ければ null */
+  nextPaymentDate: string | null;
 }
 
 export interface UnpaidBillingsResponse {
@@ -221,6 +223,18 @@ export interface UncollectedBillingsResponse {
 
 export interface SettleRemainingRequest {
   billingId: string;
+  paymentAmount: number;
+  /** 1円以上のとき必須。YYYY-MM-DD。今日以前 */
+  paymentDate?: string;
+  /** 護持費で、今回の金額が残額より少ないとき必須。YYYY-MM-DD */
+  nextPaymentDate?: string;
+  /** 画面に出ていた残額。今の残額と違うのに金額が超えるとき、残額変更の案内に使う */
+  seenRemaining?: number;
+}
+
+export interface SettleRemainingResult {
+  remainingAmount: number;
+  nextPaymentDate: string | null;
 }
 
 // ===== Payment =====

@@ -50,6 +50,13 @@ export type UpdatePaymentInput = z.infer<typeof updatePaymentSchema>;
 
 export const settleRemainingSchema = z.object({
   billingId: uuidSchema,
+  paymentAmount: z
+    .number('今回の金額を書いてください')
+    .int('今回の金額を書いてください')
+    .nonnegative('今回の金額を書いてください'),
+  paymentDate: dateSchema.optional(),
+  nextPaymentDate: dateSchema.optional(),
+  seenRemaining: z.number().int().nonnegative().optional(),
 });
 
 export type SettleRemainingInput = z.infer<typeof settleRemainingSchema>;

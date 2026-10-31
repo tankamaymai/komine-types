@@ -109,11 +109,56 @@ describe('listUncollectedBillingsQuerySchema', () => {
 });
 
 describe('settleRemainingSchema', () => {
-  it('accepts billingId', () => {
-    expect(settleRemainingSchema.safeParse({ billingId: UUID }).success).toBe(true);
+  it('accepts a full payment with a date', () => {
+    const parsed = settleRemainingSchema.safeParse({
+      billingId: UUID,
+      paymentAmount: 10000,
+      paymentDate: '2026-10-30',
+      seenRemaining: 10000,
+    });
+    expect(parsed.success).toBe(true);
+  });
+
+  it('accepts 0 yen with a next date and no payment date', () => {
+    const parsed = settleRemainingSchema.safeParse({
+      billingId: UUID,
+      paymentAmount: 0,
+      nextPaymentDate: '2026-12-01',
+    });
+    expect(parsed.success).toBe(true);
+  });
+
+  it('rejects a missing amount', () => {
+    const parsed = settleRemainingSchema.safeParse({ billingId: UUID });
+    expect(parsed.success).toBe(false);
+    if (!parsed.success) {
+      expect(parsed.error.issues[0]?.message).toBe('今回の金額を書いてください');
+    }
+  });
+
+  it('rejects a decimal amount', () => {
+    const parsed = settleRemainingSchema.safeParse({
+      billingId: UUID,
+      paymentAmount: 1.5,
+    });
+    expect(parsed.success).toBe(false);
+    if (!parsed.success) {
+      expect(parsed.error.issues[0]?.message).toBe('今回の金額を書いてください');
+    }
+  });
+
+  it('rejects a negative amount', () => {
+    const parsed = settleRemainingSchema.safeParse({
+      billingId: UUID,
+      paymentAmount: -1,
+    });
+    expect(parsed.success).toBe(false);
+    if (!parsed.success) {
+      expect(parsed.error.issues[0]?.message).toBe('今回の金額を書いてください');
+    }
   });
 
   it('rejects missing billingId', () => {
-    expect(settleRemainingSchema.safeParse({}).success).toBe(false);
+    expect(settleRemainingSchema.safeParse({ paymentAmount: 1 }).success).toBe(false);
   });
 });
